@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Enhance Spreadsheet",
+  "name": "Spreadsheet Cell Highlighter",
   "version": "1.0.0",
-  "description": "Google Spreadsheetの操作性を向上させるChrome拡張機能",
+  "description": "Highlights the active row and column in Google Sheets. Easily customize highlight mode, colors, thickness, and transparency settings.",
   "permissions": [
     "storage",
     "activeTab"
