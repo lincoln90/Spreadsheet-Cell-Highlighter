@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const iconMoon = document.getElementById('icon-moon');
   const highlightToggle = document.getElementById('highlight-toggle');
   const highlightStyle = document.getElementById('highlight-style');
+  const thicknessContainer = document.getElementById('thickness-container');
+  const lineThickness = document.getElementById('line-thickness');
+  const thicknessValue = document.getElementById('thickness-value');
   const highlightColor = document.getElementById('highlight-color');
   const highlightOpacity = document.getElementById('highlight-opacity');
   const opacityValue = document.getElementById('opacity-value');
@@ -13,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     theme: 'light',
     enabled: true,
     style: 'line',
+    thickness: 2,
     color: '#ffff00',
     opacity: 20
   }, (items) => {
@@ -22,9 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Apply values to UI
     highlightToggle.checked = items.enabled;
     highlightStyle.value = items.style;
+    lineThickness.value = items.thickness;
+    thicknessValue.textContent = `${items.thickness}px`;
     highlightColor.value = items.color;
     highlightOpacity.value = items.opacity;
     opacityValue.textContent = `${items.opacity}%`;
+
+    // Toggle visibility based on style
+    updateThicknessVisibility(items.style);
   });
 
   // Save settings when changed
@@ -32,7 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
     saveSettings();
   });
 
-  highlightStyle.addEventListener('change', () => {
+  highlightStyle.addEventListener('change', (e) => {
+    updateThicknessVisibility(e.target.value);
+    saveSettings();
+  });
+
+  lineThickness.addEventListener('input', (e) => {
+    thicknessValue.textContent = `${e.target.value}px`;
     saveSettings();
   });
 
@@ -65,10 +80,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function updateThicknessVisibility(style) {
+    if (style === 'line') {
+      thicknessContainer.style.display = 'flex';
+    } else {
+      thicknessContainer.style.display = 'none';
+    }
+  }
+
   function saveSettings() {
     const theme = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
     const enabled = highlightToggle.checked;
     const style = highlightStyle.value;
+    const thickness = parseInt(lineThickness.value, 10);
     const color = highlightColor.value;
     const opacity = parseInt(highlightOpacity.value, 10);
 
@@ -76,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
       theme: theme,
       enabled: enabled,
       style: style,
+      thickness: thickness,
       color: color,
       opacity: opacity
     });

@@ -1,5 +1,6 @@
 let isEnabled = true;
 let highlightStyle = 'line'; // 'line' or 'cell'
+let highlightThickness = 2;
 let highlightColor = '#ffff00';
 let highlightOpacity = 20;
 
@@ -30,11 +31,13 @@ function init() {
   chrome.storage.local.get({
     enabled: true,
     style: 'line',
+    thickness: 2,
     color: '#ffff00',
     opacity: 20
   }, (items) => {
     isEnabled = items.enabled;
     highlightStyle = items.style;
+    highlightThickness = items.thickness;
     highlightColor = items.color;
     highlightOpacity = items.opacity;
     updateStyles();
@@ -49,6 +52,7 @@ function init() {
     if (namespace === 'local') {
       if (changes.enabled !== undefined) isEnabled = changes.enabled.newValue;
       if (changes.style !== undefined) highlightStyle = changes.style.newValue;
+      if (changes.thickness !== undefined) highlightThickness = changes.thickness.newValue;
       if (changes.color !== undefined) highlightColor = changes.color.newValue;
       if (changes.opacity !== undefined) highlightOpacity = changes.opacity.newValue;
       
@@ -103,6 +107,9 @@ function findActiveCellRect() {
 
   for (const selector of possibleSelectors) {
     const elements = document.querySelectorAll(selector);
+    let minTop = Infinity, minLeft = Infinity, maxBottom = -Infinity, maxRight = -Infinity;
+    let found = false;
+
     for (const el of elements) {
       const rect = el.getBoundingClientRect();
       // Ensure the element is visible on screen
@@ -112,19 +119,30 @@ function findActiveCellRect() {
           continue;
         }
 
-        if (rect.top > 0 || rect.left > 0) {
-          // If we fallback to autofill-cover, adjust to simulate cell
-          if (selector === '.autofill-cover') {
-            return {
-              top: rect.top - 21 + rect.height, // Approximate top based on 21px height
-              left: rect.left - 100 + rect.width, // Approximate left based on 100px width
-              width: 100,
-              height: 21
-            };
-          }
-          return rect;
-        }
+        minTop = Math.min(minTop, rect.top);
+        minLeft = Math.min(minLeft, rect.left);
+        maxBottom = Math.max(maxBottom, rect.bottom);
+        maxRight = Math.max(maxRight, rect.right);
+        found = true;
       }
+    }
+    
+    if (found) {
+      // If we fallback to autofill-cover, adjust to simulate cell
+      if (selector === '.autofill-cover') {
+        return {
+          top: minTop - 21 + (maxBottom - minTop),
+          left: minLeft - 100 + (maxRight - minLeft),
+          width: 100,
+          height: 21
+        };
+      }
+      return {
+        top: minTop,
+        left: minLeft,
+        width: maxRight - minLeft,
+        height: maxBottom - minTop
+      };
     }
   }
   
@@ -162,51 +180,43 @@ function loop(timestamp) {
       const wh = window.innerHeight;
 
       if (highlightStyle === 'line') {
-        // Draw 2px lines centering on the cell, stopping at the cell
-        const lineThickness = 2;
-        const cy = targetRect.top + targetRect.height / 2 - lineThickness / 2;
-        const cx = targetRect.left + targetRect.width / 2 - lineThickness / 2;
+        // Draw lines stopping at the cell.
+        // Vertical line is on the right side of the cell.
+        // Horizontal line is on the bottom side of the cell.
+        const lineThickness = highlightThickness;
+        const cy = targetRect.top + targetRect.height;
+        const cx = targetRect.left + targetRect.width;
 
         hlRowLeft.style.top = cy + 'px';
         hlRowLeft.style.left = '0px';
         hlRowLeft.style.height = lineThickness + 'px';
-        hlRowLeft.style.width = Math.max(0, targetRect.left) + 'px';
+        hlRowLeft.style.width = Math.max(0, targetRect.left + targetRect.width) + 'px';
 
-        hlRowRight.style.top = cy + 'px';
-        hlRowRight.style.left = (targetRect.left + targetRect.width) + 'px';
-        hlRowRight.style.height = lineThickness + 'px';
-        hlRowRight.style.width = Math.max(0, ww - (targetRect.left + targetRect.width)) + 'px';
+        hlRowRight.style.display = 'none';
 
         hlColTop.style.left = cx + 'px';
         hlColTop.style.top = '0px';
         hlColTop.style.width = lineThickness + 'px';
-        hlColTop.style.height = Math.max(0, targetRect.top) + 'px';
+        hlColTop.style.height = Math.max(0, targetRect.top + targetRect.height) + 'px';
 
-        hlColBottom.style.left = cx + 'px';
-        hlColBottom.style.top = (targetRect.top + targetRect.height) + 'px';
-        hlColBottom.style.width = lineThickness + 'px';
-        hlColBottom.style.height = Math.max(0, wh - (targetRect.top + targetRect.height)) + 'px';
+        hlColBottom.style.display = 'none';
       } else {
-        // Draw cell bands stopping at the cell
+        // Draw cell bands stopping at the cell (covering the cell itself to form the intersection)
         hlRowLeft.style.top = targetRect.top + 'px';
         hlRowLeft.style.left = '0px';
         hlRowLeft.style.height = targetRect.height + 'px';
-        hlRowLeft.style.width = Math.max(0, targetRect.left) + 'px';
+        // Stop at the right edge of the selected cell
+        hlRowLeft.style.width = Math.max(0, targetRect.left + targetRect.width) + 'px';
 
-        hlRowRight.style.top = targetRect.top + 'px';
-        hlRowRight.style.left = (targetRect.left + targetRect.width) + 'px';
-        hlRowRight.style.height = targetRect.height + 'px';
-        hlRowRight.style.width = Math.max(0, ww - (targetRect.left + targetRect.width)) + 'px';
+        hlRowRight.style.display = 'none';
 
         hlColTop.style.left = targetRect.left + 'px';
         hlColTop.style.top = '0px';
         hlColTop.style.width = targetRect.width + 'px';
-        hlColTop.style.height = Math.max(0, targetRect.top) + 'px';
+        // Stop at the bottom edge of the selected cell
+        hlColTop.style.height = Math.max(0, targetRect.top + targetRect.height) + 'px';
 
-        hlColBottom.style.left = targetRect.left + 'px';
-        hlColBottom.style.top = (targetRect.top + targetRect.height) + 'px';
-        hlColBottom.style.width = targetRect.width + 'px';
-        hlColBottom.style.height = Math.max(0, wh - (targetRect.top + targetRect.height)) + 'px';
+        hlColBottom.style.display = 'none';
       }
     } else {
       hideHighlights();
