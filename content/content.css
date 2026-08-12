@@ -3,14 +3,5 @@
   pointer-events: none;
   z-index: 1000;
   display: none;
-  mix-blend-mode: multiply;
   transition: background-color 0.1s ease;
-}
-
-/* When dark mode or specific themes are used, multiply might not look great,
-   so we keep it basic but smooth. */
-@media (prefers-color-scheme: dark) {
-  .es-highlight {
-    mix-blend-mode: screen;
-  }
 }
