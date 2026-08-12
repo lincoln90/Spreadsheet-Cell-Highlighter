@@ -11,8 +11,6 @@ let lastTime = 0;
 
 // Store target dimensions
 let targetRect = { top: -1000, left: -1000, width: 0, height: 0 };
-let lastMousePos = { x: -1000, y: -1000 };
-
 function init() {
   // Create overlay elements (reused to avoid DOM churn)
   hlRowLeft = document.createElement('div');
@@ -66,13 +64,6 @@ function init() {
       }
     }
   });
-
-  // Track mouse position as a fallback and for hover
-  document.addEventListener('mousemove', (e) => {
-    if (!isEnabled) return;
-    lastMousePos.x = e.clientX;
-    lastMousePos.y = e.clientY;
-  }, { passive: true });
 }
 
 function hexToRgba(hex, opacity) {
@@ -105,6 +96,8 @@ function findActiveCellRect() {
     '.autofill-cover' // Fallback to fill handle if nothing else
   ];
 
+  const gridTop = getGridTop();
+
   for (const selector of possibleSelectors) {
     const elements = document.querySelectorAll(selector);
     let minTop = Infinity, minLeft = Infinity, maxBottom = -Infinity, maxRight = -Infinity;
@@ -112,8 +105,15 @@ function findActiveCellRect() {
 
     for (const el of elements) {
       const rect = el.getBoundingClientRect();
-      // Ensure the element is visible on screen
-      if (rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.left >= 0) {
+      // Ensure the element is at least partially visible on screen
+      if (
+        rect.width > 0 &&
+        rect.height > 0 &&
+        rect.bottom > gridTop &&
+        rect.right > 0 &&
+        rect.top < window.innerHeight &&
+        rect.left < window.innerWidth
+      ) {
         // Skip elements that are suspiciously large (e.g. whole column highlights by Sheets)
         if (rect.height > window.innerHeight * 0.8 || rect.width > window.innerWidth * 0.8) {
           continue;
@@ -179,22 +179,11 @@ function loop(timestamp) {
       targetRect.left = rect.left;
       targetRect.width = rect.width;
       targetRect.height = rect.height;
-    } else {
-      // Fallback: If no cell element is found (e.g. canvas rendering), track mouse
-      targetRect.top = lastMousePos.y - 10;
-      targetRect.left = lastMousePos.x - 50;
-      targetRect.width = 100;
-      targetRect.height = 21; // Approximate row height
-    }
 
-    // Apply the position if valid
-    if (targetRect.top >= 0 && targetRect.left >= 0) {
       if (hlRowLeft.style.display !== 'block') {
         highlights.forEach(hl => hl.style.display = 'block');
       }
       
-      const ww = window.innerWidth;
-      const wh = window.innerHeight;
       const gridTop = getGridTop();
 
       if (highlightStyle === 'line') {
