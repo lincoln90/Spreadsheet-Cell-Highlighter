@@ -1,0 +1,30 @@
+.es-highlight-row,
+.es-highlight-col {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  display: none;
+  mix-blend-mode: multiply;
+  transition: background-color 0.1s ease;
+}
+
+/* When dark mode or specific themes are used, multiply might not look great,
+   so we keep it basic but smooth. */
+@media (prefers-color-scheme: dark) {
+  .es-highlight-row,
+  .es-highlight-col {
+    mix-blend-mode: screen;
+  }
+}
+
+.es-highlight-row {
+  left: 0;
+  right: 0;
+  height: 21px; /* Default height, will be updated dynamically */
+}
+
+.es-highlight-col {
+  top: 0;
+  bottom: 0;
+  width: 100px; /* Default width, will be updated dynamically */
+}
