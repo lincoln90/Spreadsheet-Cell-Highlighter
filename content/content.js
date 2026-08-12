@@ -1,8 +1,10 @@
 let isEnabled = true;
+let highlightStyle = 'line'; // 'line' or 'cell'
 let highlightColor = '#ffff00';
 let highlightOpacity = 20;
 
-let rowHighlight, colHighlight;
+let hlRowLeft, hlRowRight, hlColTop, hlColBottom;
+let highlights = [];
 let animationFrameId = null;
 let lastTime = 0;
 
@@ -12,22 +14,27 @@ let lastMousePos = { x: -1000, y: -1000 };
 
 function init() {
   // Create overlay elements (reused to avoid DOM churn)
-  rowHighlight = document.createElement('div');
-  rowHighlight.className = 'es-highlight-row';
+  hlRowLeft = document.createElement('div');
+  hlRowRight = document.createElement('div');
+  hlColTop = document.createElement('div');
+  hlColBottom = document.createElement('div');
   
-  colHighlight = document.createElement('div');
-  colHighlight.className = 'es-highlight-col';
+  highlights = [hlRowLeft, hlRowRight, hlColTop, hlColBottom];
   
-  document.body.appendChild(rowHighlight);
-  document.body.appendChild(colHighlight);
+  highlights.forEach(hl => {
+    hl.className = 'es-highlight';
+    document.body.appendChild(hl);
+  });
 
   // Load initial settings
   chrome.storage.local.get({
     enabled: true,
+    style: 'line',
     color: '#ffff00',
     opacity: 20
   }, (items) => {
     isEnabled = items.enabled;
+    highlightStyle = items.style;
     highlightColor = items.color;
     highlightOpacity = items.opacity;
     updateStyles();
@@ -41,6 +48,7 @@ function init() {
   chrome.storage.onChanged.addListener((changes, namespace) => {
     if (namespace === 'local') {
       if (changes.enabled !== undefined) isEnabled = changes.enabled.newValue;
+      if (changes.style !== undefined) highlightStyle = changes.style.newValue;
       if (changes.color !== undefined) highlightColor = changes.color.newValue;
       if (changes.opacity !== undefined) highlightOpacity = changes.opacity.newValue;
       
@@ -72,32 +80,48 @@ function hexToRgba(hex, opacity) {
 
 function updateStyles() {
   const bgColor = hexToRgba(highlightColor, highlightOpacity);
-  rowHighlight.style.backgroundColor = bgColor;
-  colHighlight.style.backgroundColor = bgColor;
+  highlights.forEach(hl => {
+    hl.style.backgroundColor = bgColor;
+  });
 }
 
 function hideHighlights() {
-  rowHighlight.style.display = 'none';
-  colHighlight.style.display = 'none';
+  highlights.forEach(hl => {
+    hl.style.display = 'none';
+  });
 }
 
 function findActiveCellRect() {
   // Try to find elements that represent the active cell in Google Sheets.
   // Google Sheets DOM can vary; we check a few common markers.
   const possibleSelectors = [
-    '.autofill-cover', // Fill handle of selected cell
+    '.active-cell-border-box', // Sometimes used for single cell box
     '.active-cell-border', // Border of selected cell
-    '.waffle-rich-text-editor' // Input field when cell is active
+    '.waffle-rich-text-editor', // Input field when cell is active
+    '.autofill-cover' // Fallback to fill handle if nothing else
   ];
 
   for (const selector of possibleSelectors) {
-    const el = document.querySelector(selector);
-    if (el) {
+    const elements = document.querySelectorAll(selector);
+    for (const el of elements) {
       const rect = el.getBoundingClientRect();
       // Ensure the element is visible on screen
       if (rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.left >= 0) {
-        // If it's the rich text editor, it might be moved off-screen when not typing
-        if (rect.top > 0 && rect.left > 0) {
+        // Skip elements that are suspiciously large (e.g. whole column highlights by Sheets)
+        if (rect.height > window.innerHeight * 0.8 || rect.width > window.innerWidth * 0.8) {
+          continue;
+        }
+
+        if (rect.top > 0 || rect.left > 0) {
+          // If we fallback to autofill-cover, adjust to simulate cell
+          if (selector === '.autofill-cover') {
+            return {
+              top: rect.top - 21 + rect.height, // Approximate top based on 21px height
+              left: rect.left - 100 + rect.width, // Approximate left based on 100px width
+              width: 100,
+              height: 21
+            };
+          }
           return rect;
         }
       }
@@ -130,17 +154,60 @@ function loop(timestamp) {
 
     // Apply the position if valid
     if (targetRect.top >= 0 && targetRect.left >= 0) {
-      if (rowHighlight.style.display === 'none') {
-        rowHighlight.style.display = 'block';
-        colHighlight.style.display = 'block';
+      if (hlRowLeft.style.display !== 'block') {
+        highlights.forEach(hl => hl.style.display = 'block');
       }
       
-      // Update dimensions
-      rowHighlight.style.top = targetRect.top + 'px';
-      rowHighlight.style.height = targetRect.height + 'px';
-      
-      colHighlight.style.left = targetRect.left + 'px';
-      colHighlight.style.width = targetRect.width + 'px';
+      const ww = window.innerWidth;
+      const wh = window.innerHeight;
+
+      if (highlightStyle === 'line') {
+        // Draw 2px lines centering on the cell, stopping at the cell
+        const lineThickness = 2;
+        const cy = targetRect.top + targetRect.height / 2 - lineThickness / 2;
+        const cx = targetRect.left + targetRect.width / 2 - lineThickness / 2;
+
+        hlRowLeft.style.top = cy + 'px';
+        hlRowLeft.style.left = '0px';
+        hlRowLeft.style.height = lineThickness + 'px';
+        hlRowLeft.style.width = Math.max(0, targetRect.left) + 'px';
+
+        hlRowRight.style.top = cy + 'px';
+        hlRowRight.style.left = (targetRect.left + targetRect.width) + 'px';
+        hlRowRight.style.height = lineThickness + 'px';
+        hlRowRight.style.width = Math.max(0, ww - (targetRect.left + targetRect.width)) + 'px';
+
+        hlColTop.style.left = cx + 'px';
+        hlColTop.style.top = '0px';
+        hlColTop.style.width = lineThickness + 'px';
+        hlColTop.style.height = Math.max(0, targetRect.top) + 'px';
+
+        hlColBottom.style.left = cx + 'px';
+        hlColBottom.style.top = (targetRect.top + targetRect.height) + 'px';
+        hlColBottom.style.width = lineThickness + 'px';
+        hlColBottom.style.height = Math.max(0, wh - (targetRect.top + targetRect.height)) + 'px';
+      } else {
+        // Draw cell bands stopping at the cell
+        hlRowLeft.style.top = targetRect.top + 'px';
+        hlRowLeft.style.left = '0px';
+        hlRowLeft.style.height = targetRect.height + 'px';
+        hlRowLeft.style.width = Math.max(0, targetRect.left) + 'px';
+
+        hlRowRight.style.top = targetRect.top + 'px';
+        hlRowRight.style.left = (targetRect.left + targetRect.width) + 'px';
+        hlRowRight.style.height = targetRect.height + 'px';
+        hlRowRight.style.width = Math.max(0, ww - (targetRect.left + targetRect.width)) + 'px';
+
+        hlColTop.style.left = targetRect.left + 'px';
+        hlColTop.style.top = '0px';
+        hlColTop.style.width = targetRect.width + 'px';
+        hlColTop.style.height = Math.max(0, targetRect.top) + 'px';
+
+        hlColBottom.style.left = targetRect.left + 'px';
+        hlColBottom.style.top = (targetRect.top + targetRect.height) + 'px';
+        hlColBottom.style.width = targetRect.width + 'px';
+        hlColBottom.style.height = Math.max(0, wh - (targetRect.top + targetRect.height)) + 'px';
+      }
     } else {
       hideHighlights();
     }

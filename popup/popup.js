@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const iconSun = document.getElementById('icon-sun');
   const iconMoon = document.getElementById('icon-moon');
   const highlightToggle = document.getElementById('highlight-toggle');
+  const highlightStyle = document.getElementById('highlight-style');
   const highlightColor = document.getElementById('highlight-color');
   const highlightOpacity = document.getElementById('highlight-opacity');
   const opacityValue = document.getElementById('opacity-value');
@@ -11,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   chrome.storage.local.get({
     theme: 'light',
     enabled: true,
+    style: 'line',
     color: '#ffff00',
     opacity: 20
   }, (items) => {
@@ -19,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Apply values to UI
     highlightToggle.checked = items.enabled;
+    highlightStyle.value = items.style;
     highlightColor.value = items.color;
     highlightOpacity.value = items.opacity;
     opacityValue.textContent = `${items.opacity}%`;
@@ -26,6 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Save settings when changed
   highlightToggle.addEventListener('change', () => {
+    saveSettings();
+  });
+
+  highlightStyle.addEventListener('change', () => {
     saveSettings();
   });
 
@@ -61,12 +68,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function saveSettings() {
     const theme = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
     const enabled = highlightToggle.checked;
+    const style = highlightStyle.value;
     const color = highlightColor.value;
     const opacity = parseInt(highlightOpacity.value, 10);
 
     chrome.storage.local.set({
       theme: theme,
       enabled: enabled,
+      style: style,
       color: color,
       opacity: opacity
     });
