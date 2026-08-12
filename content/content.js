@@ -149,6 +149,23 @@ function findActiveCellRect() {
   return null;
 }
 
+function getGridTop() {
+  // Google Sheets formula bar is a reliable separator
+  const formulaBar = document.querySelector('#formula-bar');
+  if (formulaBar) {
+    const rect = formulaBar.getBoundingClientRect();
+    if (rect.bottom > 0) return rect.bottom;
+  }
+  // Fallback to grid container
+  const gridContainer = document.querySelector('.grid-container') || document.querySelector('.waffle-grid-container');
+  if (gridContainer) {
+    const rect = gridContainer.getBoundingClientRect();
+    if (rect.top > 0) return rect.top;
+  }
+  // Default to 0 if nothing works
+  return 0;
+}
+
 function loop(timestamp) {
   if (!isEnabled) return;
   
@@ -178,6 +195,7 @@ function loop(timestamp) {
       
       const ww = window.innerWidth;
       const wh = window.innerHeight;
+      const gridTop = getGridTop();
 
       if (highlightStyle === 'line') {
         // Draw lines stopping at the cell.
@@ -195,9 +213,9 @@ function loop(timestamp) {
         hlRowRight.style.display = 'none';
 
         hlColTop.style.left = cx + 'px';
-        hlColTop.style.top = '0px';
+        hlColTop.style.top = gridTop + 'px';
         hlColTop.style.width = lineThickness + 'px';
-        hlColTop.style.height = Math.max(0, targetRect.top + targetRect.height) + 'px';
+        hlColTop.style.height = Math.max(0, targetRect.top + targetRect.height - gridTop) + 'px';
 
         hlColBottom.style.display = 'none';
       } else {
@@ -211,10 +229,10 @@ function loop(timestamp) {
         hlRowRight.style.display = 'none';
 
         hlColTop.style.left = targetRect.left + 'px';
-        hlColTop.style.top = '0px';
+        hlColTop.style.top = gridTop + 'px';
         hlColTop.style.width = targetRect.width + 'px';
         // Stop at the bottom edge of the selected cell
-        hlColTop.style.height = Math.max(0, targetRect.top + targetRect.height) + 'px';
+        hlColTop.style.height = Math.max(0, targetRect.top + targetRect.height - gridTop) + 'px';
 
         hlColBottom.style.display = 'none';
       }
