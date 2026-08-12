@@ -94,9 +94,9 @@ h1 {
 
 /* Dropdown style */
 .dropdown {
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 4px 8px;
   font-family: inherit;
@@ -106,7 +106,12 @@ h1 {
 }
 
 .dropdown:focus {
-  border-color: var(--color-primary);
+  border-color: var(--accent-color);
+}
+
+.dropdown option {
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 .switch input {
