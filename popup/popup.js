@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const labelStyle = document.getElementById('label-style');
   const optionLine = document.getElementById('option-line');
   const optionCell = document.getElementById('option-cell');
+  const labelRowLimit = document.getElementById('label-row-limit');
+  const rowLimitToggle = document.getElementById('row-limit-toggle');
   const labelThickness = document.getElementById('label-thickness');
   const labelColor = document.getElementById('label-color');
   const labelOpacity = document.getElementById('label-opacity');
@@ -28,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
       style: 'ハイライトの種類',
       optionLine: '線 (Line)',
       optionCell: 'セル全体 (Cell)',
+      rowLimit: '行ハイライトの限界',
       thickness: '線の太さ',
       color: 'ハイライト色',
       opacity: '透明度',
@@ -39,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
       style: 'Highlight Type',
       optionLine: 'Line',
       optionCell: 'Cell',
+      rowLimit: 'Row Highlight Limit',
       thickness: 'Line Thickness',
       color: 'Highlight Color',
       opacity: 'Opacity',
@@ -50,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
       style: 'Tipo de Destaque',
       optionLine: 'Linha',
       optionCell: 'Célula',
+      rowLimit: 'Limite da Linha',
       thickness: 'Espessura da Linha',
       color: 'Cor do Destaque',
       opacity: 'Opacidade',
@@ -65,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (labelStyle) labelStyle.textContent = t.style;
     if (optionLine) optionLine.textContent = t.optionLine;
     if (optionCell) optionCell.textContent = t.optionCell;
+    if (labelRowLimit) labelRowLimit.textContent = t.rowLimit;
     if (labelThickness) labelThickness.textContent = t.thickness;
     if (labelColor) labelColor.textContent = t.color;
     if (labelOpacity) labelOpacity.textContent = t.opacity;
@@ -76,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lang: 'ja',
     theme: 'light',
     enabled: true,
+    rowLimit: true,
     style: 'line',
     thickness: 2,
     color: '#ffff00',
@@ -90,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Apply values to UI
     highlightToggle.checked = items.enabled;
+    if (rowLimitToggle) rowLimitToggle.checked = items.rowLimit;
     highlightStyle.value = items.style;
     lineThickness.value = items.thickness;
     thicknessValue.textContent = `${items.thickness}px`;
@@ -112,6 +120,12 @@ document.addEventListener('DOMContentLoaded', () => {
   highlightToggle.addEventListener('change', () => {
     saveSettings();
   });
+
+  if (rowLimitToggle) {
+    rowLimitToggle.addEventListener('change', () => {
+      saveSettings();
+    });
+  }
 
   highlightStyle.addEventListener('change', (e) => {
     updateThicknessVisibility(e.target.value);
@@ -164,6 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const lang = languageSelect ? languageSelect.value : 'ja';
     const theme = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
     const enabled = highlightToggle.checked;
+    const rowLimit = rowLimitToggle ? rowLimitToggle.checked : true;
     const style = highlightStyle.value;
     const thickness = parseInt(lineThickness.value, 10);
     const color = highlightColor.value;
@@ -173,6 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
       lang: lang,
       theme: theme,
       enabled: enabled,
+      rowLimit: rowLimit,
       style: style,
       thickness: thickness,
       color: color,

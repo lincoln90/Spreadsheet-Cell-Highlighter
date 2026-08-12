@@ -1,4 +1,5 @@
 let isEnabled = true;
+let rowLimit = true;
 let highlightStyle = 'line'; // 'line' or 'cell'
 let highlightThickness = 2;
 let highlightColor = '#ffff00';
@@ -28,12 +29,14 @@ function init() {
   // Load initial settings
   chrome.storage.local.get({
     enabled: true,
+    rowLimit: true,
     style: 'line',
     thickness: 2,
     color: '#ffff00',
     opacity: 20
   }, (items) => {
     isEnabled = items.enabled;
+    rowLimit = items.rowLimit;
     highlightStyle = items.style;
     highlightThickness = items.thickness;
     highlightColor = items.color;
@@ -49,6 +52,7 @@ function init() {
   chrome.storage.onChanged.addListener((changes, namespace) => {
     if (namespace === 'local') {
       if (changes.enabled !== undefined) isEnabled = changes.enabled.newValue;
+      if (changes.rowLimit !== undefined) rowLimit = changes.rowLimit.newValue;
       if (changes.style !== undefined) highlightStyle = changes.style.newValue;
       if (changes.thickness !== undefined) highlightThickness = changes.thickness.newValue;
       if (changes.color !== undefined) highlightColor = changes.color.newValue;
@@ -252,8 +256,12 @@ function loop(timestamp) {
       
       const gridTop = getGridTop();
 
+      const rowWidth = rowLimit
+        ? Math.max(0, targetRect.left + targetRect.width)
+        : window.innerWidth;
+
       if (highlightStyle === 'line') {
-        // Draw lines stopping at the cell.
+        // Draw lines stopping at the cell or extending to full width depending on rowLimit.
         // Vertical line is on the right side of the cell.
         // Horizontal line is on the bottom side of the cell.
         const lineThickness = highlightThickness;
@@ -263,7 +271,7 @@ function loop(timestamp) {
         hlRowLeft.style.top = cy + 'px';
         hlRowLeft.style.left = '0px';
         hlRowLeft.style.height = lineThickness + 'px';
-        hlRowLeft.style.width = Math.max(0, targetRect.left + targetRect.width) + 'px';
+        hlRowLeft.style.width = rowWidth + 'px';
 
         hlRowRight.style.display = 'none';
 
@@ -278,8 +286,7 @@ function loop(timestamp) {
         hlRowLeft.style.top = targetRect.top + 'px';
         hlRowLeft.style.left = '0px';
         hlRowLeft.style.height = targetRect.height + 'px';
-        // Stop at the right edge of the selected cell
-        hlRowLeft.style.width = Math.max(0, targetRect.left + targetRect.width) + 'px';
+        hlRowLeft.style.width = rowWidth + 'px';
 
         hlRowRight.style.display = 'none';
 
