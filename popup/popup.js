@@ -1,4 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const languageSelect = document.getElementById('language-select');
+  const labelLanguage = document.getElementById('label-language');
+  const labelHighlight = document.getElementById('label-highlight');
+  const labelStyle = document.getElementById('label-style');
+  const optionLine = document.getElementById('option-line');
+  const optionCell = document.getElementById('option-cell');
+  const labelThickness = document.getElementById('label-thickness');
+  const labelColor = document.getElementById('label-color');
+  const labelOpacity = document.getElementById('label-opacity');
+
   const themeToggle = document.getElementById('theme-toggle');
   const iconSun = document.getElementById('icon-sun');
   const iconMoon = document.getElementById('icon-moon');
@@ -11,8 +21,59 @@ document.addEventListener('DOMContentLoaded', () => {
   const highlightOpacity = document.getElementById('highlight-opacity');
   const opacityValue = document.getElementById('opacity-value');
 
+  const translations = {
+    ja: {
+      language: '言語',
+      highlight: '行列ハイライト',
+      style: 'ハイライトの種類',
+      optionLine: '線 (Line)',
+      optionCell: 'セル全体 (Cell)',
+      thickness: '線の太さ',
+      color: 'ハイライト色',
+      opacity: '透明度',
+      themeToggle: 'テーマ切り替え'
+    },
+    en: {
+      language: 'Language',
+      highlight: 'Row & Column Highlight',
+      style: 'Highlight Type',
+      optionLine: 'Line',
+      optionCell: 'Cell',
+      thickness: 'Line Thickness',
+      color: 'Highlight Color',
+      opacity: 'Opacity',
+      themeToggle: 'Toggle Theme'
+    },
+    'pt-BR': {
+      language: 'Idioma',
+      highlight: 'Destaque de Linha e Coluna',
+      style: 'Tipo de Destaque',
+      optionLine: 'Linha',
+      optionCell: 'Célula',
+      thickness: 'Espessura da Linha',
+      color: 'Cor do Destaque',
+      opacity: 'Opacidade',
+      themeToggle: 'Alternar Tema'
+    }
+  };
+
+  function applyLanguage(lang) {
+    const t = translations[lang] || translations.ja;
+    document.documentElement.lang = lang;
+    if (labelLanguage) labelLanguage.textContent = t.language;
+    if (labelHighlight) labelHighlight.textContent = t.highlight;
+    if (labelStyle) labelStyle.textContent = t.style;
+    if (optionLine) optionLine.textContent = t.optionLine;
+    if (optionCell) optionCell.textContent = t.optionCell;
+    if (labelThickness) labelThickness.textContent = t.thickness;
+    if (labelColor) labelColor.textContent = t.color;
+    if (labelOpacity) labelOpacity.textContent = t.opacity;
+    if (themeToggle) themeToggle.setAttribute('aria-label', t.themeToggle);
+  }
+
   // Load settings from storage
   chrome.storage.local.get({
+    lang: 'ja',
     theme: 'light',
     enabled: true,
     style: 'line',
@@ -20,6 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
     color: '#ffff00',
     opacity: 20
   }, (items) => {
+    // Apply language
+    applyLanguage(items.lang);
+    if (languageSelect) languageSelect.value = items.lang;
+
     // Apply theme
     setTheme(items.theme);
 
@@ -37,6 +102,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Save settings when changed
+  if (languageSelect) {
+    languageSelect.addEventListener('change', (e) => {
+      applyLanguage(e.target.value);
+      saveSettings();
+    });
+  }
+
   highlightToggle.addEventListener('change', () => {
     saveSettings();
   });
@@ -89,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function saveSettings() {
+    const lang = languageSelect ? languageSelect.value : 'ja';
     const theme = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
     const enabled = highlightToggle.checked;
     const style = highlightStyle.value;
@@ -97,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const opacity = parseInt(highlightOpacity.value, 10);
 
     chrome.storage.local.set({
+      lang: lang,
       theme: theme,
       enabled: enabled,
       style: style,
