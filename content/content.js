@@ -100,8 +100,7 @@ function findActiveCellRect() {
 
   for (const selector of possibleSelectors) {
     const elements = document.querySelectorAll(selector);
-    let minTop = Infinity, minLeft = Infinity, maxBottom = -Infinity, maxRight = -Infinity;
-    let found = false;
+    const validRects = [];
 
     for (const el of elements) {
       const rect = el.getBoundingClientRect();
@@ -118,34 +117,101 @@ function findActiveCellRect() {
         if (rect.height > window.innerHeight * 0.8 || rect.width > window.innerWidth * 0.8) {
           continue;
         }
-
-        minTop = Math.min(minTop, rect.top);
-        minLeft = Math.min(minLeft, rect.left);
-        maxBottom = Math.max(maxBottom, rect.bottom);
-        maxRight = Math.max(maxRight, rect.right);
-        found = true;
+        validRects.push(rect);
       }
     }
-    
-    if (found) {
-      // If we fallback to autofill-cover, adjust to simulate cell
-      if (selector === '.autofill-cover') {
+
+    if (validRects.length > 0) {
+      // Cluster overlapping rects so that separate/disjoint selection boxes across different
+      // columns or rows (e.g. focus cell box vs range selection box) are not incorrectly merged.
+      const clusters = [];
+
+      for (const rect of validRects) {
+        let addedToCluster = false;
+        for (const cluster of clusters) {
+          const overlaps = cluster.some(cRect => {
+            const hOverlap = Math.max(rect.left, cRect.left) < Math.min(rect.right, cRect.right) - 1;
+            const vOverlap = Math.max(rect.top, cRect.top) < Math.min(rect.bottom, cRect.bottom) - 1;
+            return hOverlap && vOverlap;
+          });
+
+          if (overlaps) {
+            cluster.push(rect);
+            addedToCluster = true;
+            break;
+          }
+        }
+        if (!addedToCluster) {
+          clusters.push([rect]);
+        }
+      }
+
+      // Iteratively merge clusters if adding a new rect bridged two existing clusters
+      let merged = true;
+      while (merged) {
+        merged = false;
+        for (let i = 0; i < clusters.length; i++) {
+          for (let j = i + 1; j < clusters.length; j++) {
+            const c1 = clusters[i];
+            const c2 = clusters[j];
+            const touches = c1.some(r1 =>
+              c2.some(r2 => {
+                const hOverlap = Math.max(r1.left, r2.left) < Math.min(r1.right, r2.right) - 1;
+                const vOverlap = Math.max(r1.top, r2.top) < Math.min(r1.bottom, r2.bottom) - 1;
+                return hOverlap && vOverlap;
+              })
+            );
+            if (touches) {
+              c1.push(...c2);
+              clusters.splice(j, 1);
+              merged = true;
+              break;
+            }
+          }
+          if (merged) break;
+        }
+      }
+
+      // Find the cluster with the maximum bounding area (representing the primary active selection)
+      let bestCluster = null;
+      let maxArea = -1;
+
+      for (const cluster of clusters) {
+        let minTop = Infinity, minLeft = Infinity, maxBottom = -Infinity, maxRight = -Infinity;
+        for (const r of cluster) {
+          minTop = Math.min(minTop, r.top);
+          minLeft = Math.min(minLeft, r.left);
+          maxBottom = Math.max(maxBottom, r.bottom);
+          maxRight = Math.max(maxRight, r.right);
+        }
+        const width = maxRight - minLeft;
+        const height = maxBottom - minTop;
+        const area = width * height;
+        if (area > maxArea) {
+          maxArea = area;
+          bestCluster = { minTop, minLeft, maxBottom, maxRight, width, height };
+        }
+      }
+
+      if (bestCluster) {
+        if (selector === '.autofill-cover') {
+          return {
+            top: bestCluster.minTop - 21 + bestCluster.height,
+            left: bestCluster.minLeft - 100 + bestCluster.width,
+            width: 100,
+            height: 21
+          };
+        }
         return {
-          top: minTop - 21 + (maxBottom - minTop),
-          left: minLeft - 100 + (maxRight - minLeft),
-          width: 100,
-          height: 21
+          top: bestCluster.minTop,
+          left: bestCluster.minLeft,
+          width: bestCluster.width,
+          height: bestCluster.height
         };
       }
-      return {
-        top: minTop,
-        left: minLeft,
-        width: maxRight - minLeft,
-        height: maxBottom - minTop
-      };
     }
   }
-  
+
   return null;
 }
 
