@@ -1,5 +1,6 @@
 let isEnabled = true;
 let rowLimit = true;
+let rangeHighlight = true;
 let highlightStyle = 'line'; // 'line' or 'cell'
 let highlightThickness = 2;
 let highlightColor = '#ffff00';
@@ -30,6 +31,7 @@ function init() {
   chrome.storage.local.get({
     enabled: true,
     rowLimit: true,
+    rangeHighlight: true,
     style: 'line',
     thickness: 2,
     color: '#ffff00',
@@ -37,6 +39,7 @@ function init() {
   }, (items) => {
     isEnabled = items.enabled;
     rowLimit = items.rowLimit;
+    rangeHighlight = items.rangeHighlight;
     highlightStyle = items.style;
     highlightThickness = items.thickness;
     highlightColor = items.color;
@@ -53,6 +56,7 @@ function init() {
     if (namespace === 'local') {
       if (changes.enabled !== undefined) isEnabled = changes.enabled.newValue;
       if (changes.rowLimit !== undefined) rowLimit = changes.rowLimit.newValue;
+      if (changes.rangeHighlight !== undefined) rangeHighlight = changes.rangeHighlight.newValue;
       if (changes.style !== undefined) highlightStyle = changes.style.newValue;
       if (changes.thickness !== undefined) highlightThickness = changes.thickness.newValue;
       if (changes.color !== undefined) highlightColor = changes.color.newValue;
@@ -198,19 +202,40 @@ function findActiveCellRect() {
       }
 
       if (bestCluster) {
+        let isRange = false;
+        const activeCellEl = document.querySelector('.active-cell-border') || document.querySelector('.waffle-rich-text-editor');
+        if (activeCellEl) {
+          const cellRect = activeCellEl.getBoundingClientRect();
+          if (bestCluster.width > cellRect.width + 5 || bestCluster.height > cellRect.height + 5) {
+            isRange = true;
+          }
+        } else {
+          const boxEl = document.querySelector('.active-cell-border-box');
+          const borderEl = document.querySelector('.active-cell-border');
+          if (boxEl && borderEl) {
+            const bRect = boxEl.getBoundingClientRect();
+            const dRect = borderEl.getBoundingClientRect();
+            if (bRect.width > dRect.width + 5 || bRect.height > dRect.height + 5) {
+              isRange = true;
+            }
+          }
+        }
+
         if (selector === '.autofill-cover') {
           return {
             top: bestCluster.minTop - 21 + bestCluster.height,
             left: bestCluster.minLeft - 100 + bestCluster.width,
             width: 100,
-            height: 21
+            height: 21,
+            isRange: isRange
           };
         }
         return {
           top: bestCluster.minTop,
           left: bestCluster.minLeft,
           width: bestCluster.width,
-          height: bestCluster.height
+          height: bestCluster.height,
+          isRange: isRange
         };
       }
     }
@@ -245,6 +270,12 @@ function loop(timestamp) {
     const rect = findActiveCellRect();
     
     if (rect) {
+      if (rect.isRange && !rangeHighlight) {
+        hideHighlights();
+        animationFrameId = requestAnimationFrame(loop);
+        return;
+      }
+
       targetRect.top = rect.top;
       targetRect.left = rect.left;
       targetRect.width = rect.width;
