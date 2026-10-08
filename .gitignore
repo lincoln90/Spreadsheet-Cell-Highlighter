@@ -1,0 +1,19 @@
+# Arquivos de sistema operacional
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+# Editores e IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+# Pacotes e builds da extensão
+*.zip
+*.crx
+dist/
+build/
+# Logs e arquivos temporários
+*.log
+*.tmp
