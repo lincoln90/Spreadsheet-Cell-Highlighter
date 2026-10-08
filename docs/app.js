@@ -15,7 +15,7 @@ const i18nData = {
     navGallery: "Screenshots",
     navHowItWorks: "How It Works",
     navFaq: "FAQ",
-    navInstallBtn: "Add to Chrome",
+    navInstallBtn: "Download Extension",
     langName: "English",
 
     // Hero
@@ -24,7 +24,7 @@ const i18nData = {
     heroTitleGradient: "massive spreadsheets",
     heroTitleSuffix: " again.",
     heroDescription: "An ultra-lightweight Chrome extension that tracks your active cell in Google Sheets and highlights the active row and column in real time. Boost accuracy, navigate effortlessly, and eliminate eye strain.",
-    heroBtnInstall: "Install Extension (Free)",
+    heroBtnInstall: "Download Extension (.zip)",
     heroBtnDemo: "Try Live Simulator",
     heroChip1: "Real-time Tracking",
     heroChip2: "Line & Cell Modes",
@@ -138,18 +138,19 @@ const i18nData = {
     // How It Works
     howTag: "Quick Start",
     howTitle: "Get Started in Under 30 Seconds",
-    howSubtitle: "Zero complicated setup. Install the extension and open any Google Sheet to begin.",
-    step1Title: "1. Install Extension",
-    step1Desc: "Add Spreadsheet Cell Highlighter to Google Chrome (or any Chromium browser like Edge, Brave, or Opera).",
-    step2Title: "2. Open Google Sheets",
-    step2Desc: "Navigate to docs.google.com/spreadsheets and open any workbook or create a new sheet.",
+    howSubtitle: "Zero complicated setup. Download the ready-to-use zip and load it in Chrome.",
+    step1Title: "1. Download & Extract",
+    step1Desc: "Download the latest extension .zip from GitHub Releases and extract it to a folder on your computer.",
+    step2Title: "2. Load in Chrome",
+    step2Desc: "Open chrome://extensions, turn ON 'Developer mode' (top-right), click 'Load unpacked' and pick the extracted folder.",
     step3Title: "3. Click Any Cell",
-    step3Desc: "Your row and column guides will appear immediately! Click the toolbar icon anytime to customize.",
-    devAccordionBtn: "Need to install via Developer Mode (Source Code)? Click here",
-    devStep1: "1. Clone or download this repository to your computer.",
-    devStep2: "2. Open Chrome and navigate to chrome://extensions/ in the address bar.",
+    step3Desc: "Open any sheet on Google Sheets and click a cell. Your row and column guides appear instantly!",
+    howDownloadBtn: "Download Extension (.zip) from Releases",
+    devAccordionBtn: "Want to clone from source code with Git? Click here",
+    devStep1: "1. Clone this repository using Git:",
+    devStep2: "2. Open Chrome (or Edge, Brave, Opera) and navigate to chrome://extensions/ in the address bar.",
     devStep3: "3. Toggle on 'Developer mode' in the top-right corner.",
-    devStep4: "4. Click 'Load unpacked' and select the extension directory.",
+    devStep4: "4. Click 'Load unpacked' and select the extension/ directory.",
 
     // FAQ Section
     faqTag: "Frequently Asked Questions",
@@ -169,7 +170,7 @@ const i18nData = {
     // CTA
     ctaTitle: "Ready to Supercharge Your Spreadsheets?",
     ctaDesc: "Join thousands of professionals who save time, prevent data-entry mistakes, and navigate large sheets with ease.",
-    ctaInstallBtn: "Add to Chrome — It's Free",
+    ctaInstallBtn: "Download Extension (.zip)",
     ctaGithubBtn: "View on GitHub",
 
     // Footer
@@ -186,7 +187,7 @@ const i18nData = {
     navGallery: "スクリーンショット",
     navHowItWorks: "使い方",
     navFaq: "よくある質問",
-    navInstallBtn: "Chromeに追加",
+    navInstallBtn: "拡張機能をダウンロード",
     langName: "日本語",
 
     // Hero
@@ -195,7 +196,7 @@ const i18nData = {
     heroTitleGradient: "もう行や列を見失わない。",
     heroTitleSuffix: "",
     heroDescription: "Google スプレッドシートのアクティブセルをリアルタイムで追跡し、選択中の行と列を瞬時にハイライト。データの見間違いや入力ミス、目の疲労を劇的に解消する軽量拡張機能です。",
-    heroBtnInstall: "拡張機能をインストール (無料)",
+    heroBtnInstall: "拡張機能をダウンロード (.zip)",
     heroBtnDemo: "シミュレーターを試す",
     heroChip1: "リアルタイム追跡",
     heroChip2: "線・セル全体の2モード",
@@ -309,18 +310,19 @@ const i18nData = {
     // How It Works
     howTag: "導入方法",
     howTitle: "わずか30秒で使い始められます",
-    howSubtitle: "複雑な初期設定は不要。インストール後、スプレッドシートを開くだけで自動で有効になります。",
-    step1Title: "1. 拡張機能を追加",
-    step1Desc: "Google Chrome（またはEdge、BraveなどのChromium系ブラウザ）に拡張機能を追加します。",
-    step2Title: "2. スプレッドシートを開く",
-    step2Desc: "Google スプレッドシート（docs.google.com/spreadsheets）で既存のシートを開くか新規作成します。",
+    howSubtitle: "ビルドや難しいコマンド操作は一切不要。配布用zipをダウンロードしてブラウザに読み込むだけです。",
+    step1Title: "1. ダウンロード＆解凍",
+    step1Desc: "GitHub Releasesから最新の拡張機能zipをダウンロードし、お使いのPC上のフォルダに解凍します。",
+    step2Title: "2. ブラウザに読み込む",
+    step2Desc: "chrome://extensions を開き、右上の「デベロッパーモード」をONにして、「パッケージ化されていない拡張機能を読み込む」から解凍したフォルダを選択します。",
     step3Title: "3. セルをクリック",
-    step3Desc: "任意のセルをクリックすると、自動的に行・列ハイライトが表示されます！ツールバーのアイコンからカスタマイズも自由自在。",
-    devAccordionBtn: "ソースコード（デベロッパーモード）からインストールする場合はこちら",
-    devStep1: "1. 本リポジトリをダウンロードまたは git clone します。",
-    devStep2: "2. Chromeのアドレスバーに chrome://extensions/ と入力して開きます。",
+    step3Desc: "Google スプレッドシートを開いてセルをクリックするだけで、行と列が瞬時にハイライトされます！",
+    howDownloadBtn: "Releasesから拡張機能 (.zip) をダウンロード",
+    devAccordionBtn: "Gitでソースコードからクローンしたい場合はこちら",
+    devStep1: "1. Gitで本リポジトリをクローンします:",
+    devStep2: "2. Chrome（またはEdge、Brave等）のアドレスバーに chrome://extensions/ と入力して開きます。",
     devStep3: "3. 右上の「デベロッパーモード」をONにします。",
-    devStep4: "4. 左上の「パッケージ化されていない拡張機能を読み込む」を押し、本フォルダを選択します。",
+    devStep4: "4. 「パッケージ化されていない拡張機能を読み込む」を押し、extension/ フォルダを選択します。",
 
     // FAQ Section
     faqTag: "よくあるご質問",
@@ -340,7 +342,7 @@ const i18nData = {
     // CTA
     ctaTitle: "スプレッドシート作業を、もっと快適に。",
     ctaDesc: "行のズレや見間違いのストレスから解放されましょう。今すぐ数秒で導入できます。",
-    ctaInstallBtn: "Chromeに追加する (無料)",
+    ctaInstallBtn: "拡張機能をダウンロード (.zip)",
     ctaGithubBtn: "GitHubを見る",
 
     // Footer
@@ -357,7 +359,7 @@ const i18nData = {
     navGallery: "Capturas de Tela",
     navHowItWorks: "Como Funciona",
     navFaq: "Perguntas Frequentes",
-    navInstallBtn: "Instalar no Chrome",
+    navInstallBtn: "Baixar Extensão",
     langName: "Português",
 
     // Hero
@@ -366,7 +368,7 @@ const i18nData = {
     heroTitleGradient: "planilhas gigantescas",
     heroTitleSuffix: ".",
     heroDescription: "Uma extensão ultra leve para o Chrome que rastreia a célula ativa no Google Planilhas e destaca a linha e a coluna em tempo real. Evite erros de alinhamento, acelere sua digitação e reduza o cansaço visual.",
-    heroBtnInstall: "Instalar Extensão (Grátis)",
+    heroBtnInstall: "Baixar Extensão (.zip)",
     heroBtnDemo: "Testar Simulador Interativo",
     heroChip1: "Rastreamento em Tempo Real",
     heroChip2: "Modos Linha e Célula",
@@ -480,18 +482,19 @@ const i18nData = {
     // How It Works
     howTag: "Início Rápido",
     howTitle: "Pronto para Usar em Menos de 30 Segundos",
-    howSubtitle: "Nenhuma configuração complicada. Basta instalar e abrir qualquer planilha no Google Sheets.",
-    step1Title: "1. Instale a Extensão",
-    step1Desc: "Adicione a extensão ao Google Chrome (ou qualquer navegador Chromium como Edge, Brave ou Opera).",
-    step2Title: "2. Abra o Google Planilhas",
-    step2Desc: "Acesse docs.google.com/spreadsheets e abra sua planilha de trabalho ou crie uma nova.",
-    step3Title: "3. Clique em Qualquer Célula",
-    step3Desc: "As guias de linha e coluna surgirão instantaneamente! Clique no ícone na barra do Chrome para personalizar.",
-    devAccordionBtn: "Deseja instalar pelo Modo Desenvolvedor (Código Fonte)? Clique aqui",
-    devStep1: "1. Baixe ou clone este repositório no seu computador.",
-    devStep2: "2. Abra o Chrome e digite chrome://extensions/ na barra de endereços.",
+    howSubtitle: "Sem terminal e sem compilação. Basta baixar o zip pronto para uso e carregar no seu navegador.",
+    step1Title: "1. Baixar e Descompactar",
+    step1Desc: "Baixe a versão mais recente em .zip no GitHub Releases e extraia a pasta em qualquer local do seu computador.",
+    step2Title: "2. Carregar no Navegador",
+    step2Desc: "Acesse chrome://extensions no Chrome (ou Edge, Brave, Opera), ative o 'Modo do desenvolvedor' (canto superior direito) e clique em 'Carregar sem compactação' escolhendo a pasta extraída.",
+    step3Title: "3. Usar no Google Planilhas",
+    step3Desc: "Abra qualquer planilha no Google Planilhas e clique em uma célula. As guias de linha e coluna surgirão imediatamente!",
+    howDownloadBtn: "Baixar Extensão (.zip) nas Releases",
+    devAccordionBtn: "Prefere clonar o código-fonte via Git? Clique aqui",
+    devStep1: "1. Clone este repositório usando o Git:",
+    devStep2: "2. Abra o Chrome (ou Edge, Brave, Opera) e acesse chrome://extensions/ na barra de endereços.",
     devStep3: "3. Ative o 'Modo do desenvolvedor' no canto superior direito.",
-    devStep4: "4. Clique em 'Carregar sem compactação' e selecione a pasta da extensão.",
+    devStep4: "4. Clique em 'Carregar sem compactação' e selecione a pasta extension/.",
 
     // FAQ Section
     faqTag: "Dúvidas Frequentes",
@@ -511,7 +514,7 @@ const i18nData = {
     // CTA
     ctaTitle: "Pronto para Navegar com Máxima Precisão?",
     ctaDesc: "Instale em instantes e experimente a forma mais intuitiva de trabalhar no Google Planilhas.",
-    ctaInstallBtn: "Adicionar ao Chrome — É Grátis",
+    ctaInstallBtn: "Baixar Extensão (.zip)",
     ctaGithubBtn: "Ver no GitHub",
 
     // Footer

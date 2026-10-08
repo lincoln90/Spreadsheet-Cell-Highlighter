@@ -53,21 +53,28 @@ Your data privacy is 100% respected:
 
 ## 🚀 Installation
 
-### Option 1: Load as Unpacked Extension (Developer Mode)
+### Option 1: Quick Install (Recommended — Ready-to-Use Zip)
 
-1. Clone or download this repository to your local machine:
+No terminal or Git required:
+
+1. **Download:** Go to [Releases](https://github.com/lincoln90/Spreadsheet-Cell-Highlighter/releases) and download the latest extension `.zip` file.
+2. **Extract:** Unzip/extract the downloaded file to a folder on your computer.
+3. **Open Extensions:** In Google Chrome (or Edge, Brave, Opera), navigate to `chrome://extensions/` in your address bar.
+4. **Developer Mode:** Turn **ON** the **Developer mode** toggle in the top-right corner.
+5. **Load Extension:** Click **Load unpacked** in the top-left corner and select the extracted folder.
+6. **Done!** Pin the extension icon to your browser toolbar and open any Google Sheet.
+
+### Option 2: Install from Source Code (Developers)
+
+1. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/spreadsheet-cell-highlighter.git
+   git clone https://github.com/lincoln90/Spreadsheet-Cell-Highlighter.git
    ```
-2. Open Google Chrome (or any Chromium-based browser such as Brave, Edge, or Opera).
-3. Navigate to `chrome://extensions/` in the URL bar.
-4. Toggle on **Developer mode** in the top-right corner.
-5. Click **Load unpacked** in the top-left corner.
-6. Select the `extension/` directory inside the project folder.
-7. The extension icon will now appear in your browser toolbar!
+2. Navigate to `chrome://extensions/` in Chrome and enable **Developer mode**.
+3. Click **Load unpacked** and select the `extension/` folder inside the cloned repository.
 
-### Option 2: Chrome Web Store
-*(Coming soon / check store link once published)*
+### Option 3: Chrome Web Store
+*(Coming soon — currently under review)*
 
 ---
 
@@ -103,7 +110,7 @@ Spreadsheet Cell Highlighter/
 │   │   ├── popup.js           # Settings logic, internationalization, and theme toggle
 │   │   └── popup.css          # Control panel styling (Light and Dark themes)
 │   └── icons/                 # Extension icons in standard resolutions (16x16, 32x32, 48x48, 128x128)
-├── site/                      # Promotional landing page & interactive preview
+├── docs/                      # Promotional landing page & interactive preview (GitHub Pages)
 ├── store-assets/              # Promotional graphics and screenshots for Chrome Web Store
 ├── .gitignore                 # Standard Git ignore file for development
 └── README.md                  # Project documentation
