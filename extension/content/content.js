@@ -1,5 +1,6 @@
 let isEnabled = true;
 let rowLimit = true;
+let colLimit = true;
 let rangeHighlight = true;
 let highlightStyle = 'line'; // 'line' or 'cell'
 let highlightThickness = 2;
@@ -376,11 +377,23 @@ function updateHighlight() {
     });
 
     const colTasks = mergedCols.map((col) => {
+      let colHeight = '100%';
+      if (colLimit) {
+        const rectsInCol = rectList.filter(
+          (r) => r.x < col.x + col.width && r.x + r.width > col.x
+        );
+        const maxY =
+          rectsInCol.length > 0
+            ? Math.max(...rectsInCol.map((r) => r.y + r.height))
+            : 0;
+        colHeight = `${Math.max(0, maxY)}px`;
+      }
+
       return {
         left: `${col.x + col.width - highlightThickness}px`,
         top: '0px',
         width: `${highlightThickness}px`,
-        height: '100%',
+        height: colHeight,
       };
     });
 
@@ -409,11 +422,23 @@ function updateHighlight() {
     });
 
     const colTasks = mergedCols.map((col) => {
+      let colHeight = '100%';
+      if (colLimit) {
+        const rectsInCol = rectList.filter(
+          (r) => r.x < col.x + col.width && r.x + r.width > col.x
+        );
+        const maxY =
+          rectsInCol.length > 0
+            ? Math.max(...rectsInCol.map((r) => r.y + r.height))
+            : 0;
+        colHeight = `${Math.max(0, maxY)}px`;
+      }
+
       return {
         left: `${col.x}px`,
         top: '0px',
         width: `${col.width}px`,
-        height: '100%',
+        height: colHeight,
       };
     });
 
@@ -485,6 +510,7 @@ function init() {
     {
       enabled: true,
       rowLimit: true,
+      colLimit: true,
       rangeHighlight: true,
       style: 'line',
       thickness: 2,
@@ -494,6 +520,7 @@ function init() {
     (items) => {
       isEnabled = items.enabled;
       rowLimit = items.rowLimit;
+      colLimit = items.colLimit;
       rangeHighlight = items.rangeHighlight;
       highlightStyle = items.style;
       highlightThickness = items.thickness;
@@ -512,6 +539,7 @@ function init() {
     if (namespace === 'local') {
       if (changes.enabled !== undefined) isEnabled = changes.enabled.newValue;
       if (changes.rowLimit !== undefined) rowLimit = changes.rowLimit.newValue;
+      if (changes.colLimit !== undefined) colLimit = changes.colLimit.newValue;
       if (changes.rangeHighlight !== undefined)
         rangeHighlight = changes.rangeHighlight.newValue;
       if (changes.style !== undefined) highlightStyle = changes.style.newValue;

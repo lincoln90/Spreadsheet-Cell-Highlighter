@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const optionCell = document.getElementById('option-cell');
   const labelRowLimit = document.getElementById('label-row-limit');
   const rowLimitToggle = document.getElementById('row-limit-toggle');
+  const labelColLimit = document.getElementById('label-col-limit');
+  const colLimitToggle = document.getElementById('col-limit-toggle');
   const labelRangeHighlight = document.getElementById('label-range-highlight');
   const rangeHighlightToggle = document.getElementById('range-highlight-toggle');
   const labelThickness = document.getElementById('label-thickness');
@@ -33,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
       optionLine: '線 (Line)',
       optionCell: 'セル全体 (Cell)',
       rowLimit: '行ハイライトの限界',
+      colLimit: '列ハイライトの限界',
       rangeHighlight: '範囲選択時のハイライト',
       thickness: '線の太さ',
       color: 'ハイライト色',
@@ -46,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
       optionLine: 'Line',
       optionCell: 'Cell',
       rowLimit: 'Row Highlight Limit',
+      colLimit: 'Column Highlight Limit',
       rangeHighlight: 'Highlight on Range Selection',
       thickness: 'Line Thickness',
       color: 'Highlight Color',
@@ -59,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
       optionLine: 'Linha',
       optionCell: 'Célula',
       rowLimit: 'Limite da Linha',
+      colLimit: 'Limite da Coluna',
       rangeHighlight: 'Destaque na Seleção de Intervalo',
       thickness: 'Espessura da Linha',
       color: 'Cor do Destaque',
@@ -76,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (optionLine) optionLine.textContent = t.optionLine;
     if (optionCell) optionCell.textContent = t.optionCell;
     if (labelRowLimit) labelRowLimit.textContent = t.rowLimit;
+    if (labelColLimit) labelColLimit.textContent = t.colLimit;
     if (labelRangeHighlight) labelRangeHighlight.textContent = t.rangeHighlight;
     if (labelThickness) labelThickness.textContent = t.thickness;
     if (labelColor) labelColor.textContent = t.color;
@@ -89,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     theme: 'light',
     enabled: true,
     rowLimit: true,
+    colLimit: true,
     rangeHighlight: true,
     style: 'line',
     thickness: 2,
@@ -105,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Apply values to UI
     highlightToggle.checked = items.enabled;
     if (rowLimitToggle) rowLimitToggle.checked = items.rowLimit;
+    if (colLimitToggle) colLimitToggle.checked = items.colLimit;
     if (rangeHighlightToggle) rangeHighlightToggle.checked = items.rangeHighlight;
     highlightStyle.value = items.style;
     lineThickness.value = items.thickness;
@@ -131,6 +139,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (rowLimitToggle) {
     rowLimitToggle.addEventListener('change', () => {
+      saveSettings();
+    });
+  }
+
+  if (colLimitToggle) {
+    colLimitToggle.addEventListener('change', () => {
       saveSettings();
     });
   }
@@ -193,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const theme = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
     const enabled = highlightToggle.checked;
     const rowLimit = rowLimitToggle ? rowLimitToggle.checked : true;
+    const colLimit = colLimitToggle ? colLimitToggle.checked : true;
     const rangeHighlight = rangeHighlightToggle ? rangeHighlightToggle.checked : true;
     const style = highlightStyle.value;
     const thickness = parseInt(lineThickness.value, 10);
@@ -204,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
       theme: theme,
       enabled: enabled,
       rowLimit: rowLimit,
+      colLimit: colLimit,
       rangeHighlight: rangeHighlight,
       style: style,
       thickness: thickness,
