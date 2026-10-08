@@ -63,7 +63,7 @@ Your data privacy is 100% respected:
 3. Navigate to `chrome://extensions/` in the URL bar.
 4. Toggle on **Developer mode** in the top-right corner.
 5. Click **Load unpacked** in the top-left corner.
-6. Select the project directory (`Spreadsheet Cell Highlighter`).
+6. Select the `extension/` directory inside the project folder.
 7. The extension icon will now appear in your browser toolbar!
 
 ### Option 2: Chrome Web Store
@@ -93,15 +93,17 @@ All changes are saved automatically and take effect instantly on open sheets wit
 
 ```plaintext
 Spreadsheet Cell Highlighter/
-├── manifest.json              # Chrome Extension Manifest V3 configuration
-├── content/
-│   ├── content.js             # Core script tracking Google Sheets active cell DOM & rendering overlays
-│   └── content.css            # Styles and z-index positioning for guide elements
-├── popup/
-│   ├── popup.html             # Popup control panel markup
-│   ├── popup.js               # Settings logic, internationalization, and theme toggle
-│   └── popup.css              # Control panel styling (Light and Dark themes)
-├── icons/                     # Extension icons in standard resolutions (16x16, 32x32, 48x48, 128x128)
+├── extension/                 # Chrome Extension files (Load this folder in browser)
+│   ├── manifest.json          # Chrome Extension Manifest V3 configuration
+│   ├── content/
+│   │   ├── content.js         # Core script tracking Google Sheets active cell DOM & rendering overlays
+│   │   └── content.css        # Styles and z-index positioning for guide elements
+│   ├── popup/
+│   │   ├── popup.html         # Popup control panel markup
+│   │   ├── popup.js           # Settings logic, internationalization, and theme toggle
+│   │   └── popup.css          # Control panel styling (Light and Dark themes)
+│   └── icons/                 # Extension icons in standard resolutions (16x16, 32x32, 48x48, 128x128)
+├── site/                      # Promotional landing page & interactive preview
 ├── store-assets/              # Promotional graphics and screenshots for Chrome Web Store
 ├── .gitignore                 # Standard Git ignore file for development
 └── README.md                  # Project documentation
