@@ -6,334 +6,455 @@ let highlightThickness = 2;
 let highlightColor = '#ffff00';
 let highlightOpacity = 20;
 
-let hlRowLeft, hlRowRight, hlColTop, hlColBottom;
-let highlights = [];
+let appContainer = null;
+let elementPool = [];
+let locator = null;
 let animationFrameId = null;
 let lastTime = 0;
 
-// Store target dimensions
-let targetRect = { top: -1000, left: -1000, width: 0, height: 0 };
-function init() {
-  // Create overlay elements (reused to avoid DOM churn)
-  hlRowLeft = document.createElement('div');
-  hlRowRight = document.createElement('div');
-  hlColTop = document.createElement('div');
-  hlColBottom = document.createElement('div');
-  
-  highlights = [hlRowLeft, hlRowRight, hlColTop, hlColBottom];
-  
-  highlights.forEach(hl => {
-    hl.className = 'es-highlight';
-    document.body.appendChild(hl);
-  });
+/**
+ * Locator for Google Sheets active cells and selection ranges
+ */
+class SheetsActiveCellLocator {
+  constructor() {
+    this._activeBorderClass = 'active-cell-border';
+    this._selectionClass = 'selection';
+    this._sheetContainerId = 'waffle-grid-container';
+  }
 
-  // Load initial settings
-  chrome.storage.local.get({
-    enabled: true,
-    rowLimit: true,
-    rangeHighlight: true,
-    style: 'line',
-    thickness: 2,
-    color: '#ffff00',
-    opacity: 20
-  }, (items) => {
-    isEnabled = items.enabled;
-    rowLimit = items.rowLimit;
-    rangeHighlight = items.rangeHighlight;
-    highlightStyle = items.style;
-    highlightThickness = items.thickness;
-    highlightColor = items.color;
-    highlightOpacity = items.opacity;
-    updateStyles();
-    
-    if (isEnabled) {
-      startLoop();
+  getHighlightRectList() {
+    const activeSelectionList = Array.from(
+      document.getElementsByClassName(this._selectionClass)
+    ).filter((element) => {
+      if (element.style.display === 'none') return false;
+      const r = element.getBoundingClientRect();
+      return r.width > 0 && r.height > 0;
+    });
+
+    if (activeSelectionList.length > 0) {
+      return this._getMultipleHighlightRectList(activeSelectionList);
     }
-  });
 
-  // Listen for setting changes
-  chrome.storage.onChanged.addListener((changes, namespace) => {
-    if (namespace === 'local') {
-      if (changes.enabled !== undefined) isEnabled = changes.enabled.newValue;
-      if (changes.rowLimit !== undefined) rowLimit = changes.rowLimit.newValue;
-      if (changes.rangeHighlight !== undefined) rangeHighlight = changes.rangeHighlight.newValue;
-      if (changes.style !== undefined) highlightStyle = changes.style.newValue;
-      if (changes.thickness !== undefined) highlightThickness = changes.thickness.newValue;
-      if (changes.color !== undefined) highlightColor = changes.color.newValue;
-      if (changes.opacity !== undefined) highlightOpacity = changes.opacity.newValue;
-      
-      updateStyles();
-      
-      if (isEnabled) {
-        startLoop();
-      } else {
-        stopLoop();
-        hideHighlights();
+    return this._getSingleHighlightRectList();
+  }
+
+  _getMultipleHighlightRectList(activeSelectionList) {
+    const sheetRect = this._getSheetContainerRect();
+    if (!sheetRect) {
+      return [];
+    }
+
+    const activeSelectionRectList = activeSelectionList.map((element) => {
+      const { x, y, width, height } = element.getBoundingClientRect();
+      return {
+        x: Math.ceil(x - sheetRect.x),
+        y: Math.ceil(y - sheetRect.y),
+        width: Math.ceil(width),
+        height: Math.ceil(height),
+      };
+    }).filter((r) => r.width > 0 && r.height > 0);
+
+    const rowOrColumnRectList = activeSelectionRectList.filter(
+      (rect) => sheetRect.width <= rect.width || sheetRect.height <= rect.height
+    );
+
+    // Filter out cells that share exact coordinate with whole row or column selection
+    return activeSelectionRectList.filter(
+      (rect) =>
+        !rowOrColumnRectList.some(({ x, y, width, height }) =>
+          height < width
+            ? rect.y === y && rect.height === height
+            : rect.x === x && rect.width === width
+        )
+    );
+  }
+
+  _getSingleHighlightRectList() {
+    const sheetRect = this._getSheetContainerRect();
+    if (!sheetRect) {
+      return [];
+    }
+
+    const activeBorderList = document.getElementsByClassName(this._activeBorderClass);
+
+    if (activeBorderList.length === 4) {
+      const topBorderRect = activeBorderList[0].getBoundingClientRect();
+      const leftBorderRect = activeBorderList[3].getBoundingClientRect();
+
+      if (topBorderRect.width > 0 && leftBorderRect.height > 0) {
+        return [
+          {
+            x: Math.ceil(topBorderRect.x - sheetRect.x),
+            y: Math.ceil(topBorderRect.y - sheetRect.y),
+            width: Math.ceil(topBorderRect.width),
+            height: Math.ceil(leftBorderRect.height),
+          },
+        ];
       }
     }
-  });
+
+    // Google Sheets DOM fallbacks
+    const boxEl = document.querySelector('.active-cell-border-box');
+    if (boxEl) {
+      const r = boxEl.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        return [
+          {
+            x: Math.ceil(r.x - sheetRect.x),
+            y: Math.ceil(r.y - sheetRect.y),
+            width: Math.ceil(r.width),
+            height: Math.ceil(r.height),
+          },
+        ];
+      }
+    }
+
+    const editorEl = document.querySelector('.waffle-rich-text-editor');
+    if (editorEl) {
+      const r = editorEl.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        return [
+          {
+            x: Math.ceil(r.x - sheetRect.x),
+            y: Math.ceil(r.y - sheetRect.y),
+            width: Math.ceil(r.width),
+            height: Math.ceil(r.height),
+          },
+        ];
+      }
+    }
+
+    const autofillEl = document.querySelector('.autofill-cover');
+    if (autofillEl) {
+      const r = autofillEl.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        return [
+          {
+            x: Math.ceil(r.x - sheetRect.x - 90),
+            y: Math.ceil(r.y - sheetRect.y - 15),
+            width: 100,
+            height: 22,
+          },
+        ];
+      }
+    }
+
+    return [];
+  }
+
+  _getSheetContainerRect() {
+    const container =
+      document.getElementById(this._sheetContainerId) ||
+      document.querySelector('.grid-container') ||
+      document.querySelector('.waffle-grid-container');
+
+    return container?.getBoundingClientRect();
+  }
+}
+
+/**
+ * Locator for Microsoft Excel Online active cells and selection ranges
+ */
+class ExcelActiveCellLocator {
+  constructor() {
+    this._singleSelectionClassList = [
+      'ewr-cell-selection-highlight-all-after-fluent',
+      'ewr-cell-selection-highlight-all',
+    ];
+    this._multipleSelectionClassList = [
+      'ewr-discontinuous-selection-active-range-border-after-fluent',
+      'ewr-discontinuous-selection-active-range-border',
+      'ewr-discontinuous-selection-after-fluent',
+      'ewr-discontinuous-selection',
+    ];
+    this._sheetContainerClass = 'ewa-grid-ltr';
+    this._hiddenClass = 'ewa-hidden';
+  }
+
+  getHighlightRectList() {
+    const sheetRect = this._getSheetContainerRect();
+    if (!sheetRect) {
+      return [];
+    }
+
+    const singleSelectionList = this._singleSelectionClassList
+      .flatMap((className) =>
+        Array.from(document.getElementsByClassName(className))
+      )
+      .filter((element) => !element.classList.contains(this._hiddenClass));
+
+    const rectList = singleSelectionList.length
+      ? this._getSingleHighlightRectList(singleSelectionList)
+      : this._getMultipleHighlightRectList();
+
+    return rectList.filter(
+      (rect) => !(sheetRect.width < rect.width || sheetRect.height < rect.height)
+    );
+  }
+
+  _getSingleHighlightRectList(singleSelectionList) {
+    const sheetRect = this._getSheetContainerRect();
+    if (!sheetRect) {
+      return [];
+    }
+
+    const sorted = singleSelectionList.sort((a, b) => {
+      if (a.id < b.id) return -1;
+      if (a.id > b.id) return 1;
+      return 0;
+    });
+
+    const selectionRect = sorted[0].getBoundingClientRect();
+
+    return [
+      {
+        x: Math.ceil(selectionRect.x - sheetRect.x),
+        y: Math.ceil(selectionRect.y - sheetRect.y),
+        width: Math.ceil(selectionRect.width),
+        height: Math.ceil(selectionRect.height),
+      },
+    ];
+  }
+
+  _getMultipleHighlightRectList() {
+    const sheetRect = this._getSheetContainerRect();
+    if (!sheetRect) {
+      return [];
+    }
+
+    const selectionList = this._multipleSelectionClassList
+      .flatMap((className) =>
+        Array.from(document.getElementsByClassName(className))
+      )
+      .filter((element) => !element.classList.contains(this._hiddenClass));
+
+    return selectionList.map((element) => {
+      const { x, y, width, height } = element.getBoundingClientRect();
+      return {
+        x: Math.ceil(x - sheetRect.x),
+        y: Math.ceil(y - sheetRect.y),
+        width: Math.ceil(width),
+        height: Math.ceil(height),
+      };
+    });
+  }
+
+  _getSheetContainerRect() {
+    const sheetContainer = document.getElementsByClassName(this._sheetContainerClass)[0];
+    return sheetContainer?.getBoundingClientRect();
+  }
+}
+
+/**
+ * Merge overlapping rects in dimension (x or y)
+ * @param {Array<{x: number, y: number, width: number, height: number}>} rectList
+ * @param {'x' | 'y'} dim
+ */
+function mergeRectList(rectList, dim) {
+  return [...rectList]
+    .sort((a, b) => a[dim] - b[dim])
+    .reduce((acc, rect) => {
+      const prevRect = acc[acc.length - 1];
+      const dimSize = dim === 'x' ? 'width' : 'height';
+
+      if (!prevRect || prevRect[dim] + prevRect[dimSize] < rect[dim]) {
+        acc.push({ ...rect });
+        return acc;
+      }
+
+      prevRect[dimSize] = Math.max(
+        prevRect[dimSize],
+        rect[dim] + rect[dimSize] - prevRect[dim]
+      );
+
+      return acc;
+    }, []);
 }
 
 function hexToRgba(hex, opacity) {
-  let r = parseInt(hex.slice(1, 3), 16),
-      g = parseInt(hex.slice(3, 5), 16),
-      b = parseInt(hex.slice(5, 7), 16);
+  if (!hex || hex.length < 7) hex = '#ffff00';
+  const r = parseInt(hex.slice(1, 3), 16) || 0;
+  const g = parseInt(hex.slice(3, 5), 16) || 0;
+  const b = parseInt(hex.slice(5, 7), 16) || 0;
   return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
 }
 
-function updateStyles() {
-  const bgColor = hexToRgba(highlightColor, highlightOpacity);
-  highlights.forEach(hl => {
-    hl.style.backgroundColor = bgColor;
-  });
+function ensureContainer() {
+  if (!appContainer || !document.body.contains(appContainer)) {
+    appContainer = document.getElementById('es-highlighter-container');
+    if (!appContainer) {
+      appContainer = document.createElement('div');
+      appContainer.id = 'es-highlighter-container';
+      appContainer.className = 'es-highlighter-container';
+      document.body.appendChild(appContainer);
+    }
+    elementPool = Array.from(appContainer.getElementsByClassName('es-highlight'));
+  }
+  return appContainer;
 }
 
 function hideHighlights() {
-  highlights.forEach(hl => {
-    hl.style.display = 'none';
+  elementPool.forEach((el) => {
+    el.style.display = 'none';
+  });
+  if (appContainer) {
+    appContainer.style.display = 'none';
+  }
+}
+
+function updateHighlight() {
+  if (!isEnabled || !locator) {
+    hideHighlights();
+    return;
+  }
+
+  const sheetRect = locator._getSheetContainerRect();
+  if (!sheetRect || sheetRect.width <= 0 || sheetRect.height <= 0) {
+    hideHighlights();
+    return;
+  }
+
+  const container = ensureContainer();
+  Object.assign(container.style, {
+    position: 'fixed',
+    left: `${sheetRect.x}px`,
+    top: `${sheetRect.y}px`,
+    width: `${sheetRect.width}px`,
+    height: `${sheetRect.height}px`,
+    pointerEvents: 'none',
+    overflow: 'hidden',
+    zIndex: '1',
+    display: 'block',
+  });
+
+  const rectList = locator.getHighlightRectList();
+  if (!rectList || rectList.length === 0) {
+    hideHighlights();
+    return;
+  }
+
+  // Range highlight suppression when toggled off
+  if (!rangeHighlight) {
+    const isRange =
+      rectList.length > 1 ||
+      rectList.some((r) => r.width > 120 || r.height > 40);
+    if (isRange) {
+      hideHighlights();
+      return;
+    }
+  }
+
+  const bgColor = hexToRgba(highlightColor, highlightOpacity);
+
+  // Merge overlapping rows and columns to expand highlight coverage
+  const mergedRows = mergeRectList(rectList, 'y');
+  const mergedCols = mergeRectList(rectList, 'x');
+
+  let highlightTasks = [];
+
+  if (highlightStyle === 'line') {
+    // Line Mode: lines at bottom of row bands and right of column bands
+    const rowTasks = mergedRows.map((row) => {
+      let rowWidth = '100%';
+      if (rowLimit) {
+        const rectsInRow = rectList.filter(
+          (r) => r.y < row.y + row.height && r.y + r.height > row.y
+        );
+        const maxX =
+          rectsInRow.length > 0
+            ? Math.max(...rectsInRow.map((r) => r.x + r.width))
+            : 0;
+        rowWidth = `${Math.max(0, maxX)}px`;
+      }
+
+      return {
+        left: '0px',
+        top: `${row.y + row.height - highlightThickness}px`,
+        width: rowWidth,
+        height: `${highlightThickness}px`,
+      };
+    });
+
+    const colTasks = mergedCols.map((col) => {
+      return {
+        left: `${col.x + col.width - highlightThickness}px`,
+        top: '0px',
+        width: `${highlightThickness}px`,
+        height: '100%',
+      };
+    });
+
+    highlightTasks = [...rowTasks, ...colTasks];
+  } else {
+    // Cell Mode: solid translucent bands across selected rows and columns
+    const rowTasks = mergedRows.map((row) => {
+      let rowWidth = '100%';
+      if (rowLimit) {
+        const rectsInRow = rectList.filter(
+          (r) => r.y < row.y + row.height && r.y + r.height > row.y
+        );
+        const maxX =
+          rectsInRow.length > 0
+            ? Math.max(...rectsInRow.map((r) => r.x + r.width))
+            : 0;
+        rowWidth = `${Math.max(0, maxX)}px`;
+      }
+
+      return {
+        left: '0px',
+        top: `${row.y}px`,
+        width: rowWidth,
+        height: `${row.height}px`,
+      };
+    });
+
+    const colTasks = mergedCols.map((col) => {
+      return {
+        left: `${col.x}px`,
+        top: '0px',
+        width: `${col.width}px`,
+        height: '100%',
+      };
+    });
+
+    highlightTasks = [...rowTasks, ...colTasks];
+  }
+
+  // Adjust DOM element pool to match task count
+  const diff = highlightTasks.length - elementPool.length;
+  if (diff > 0) {
+    for (let i = 0; i < diff; i++) {
+      const el = document.createElement('div');
+      el.className = 'es-highlight';
+      elementPool.push(el);
+      container.appendChild(el);
+    }
+  } else if (diff < 0) {
+    elementPool.slice(diff).forEach((el) => {
+      el.style.display = 'none';
+    });
+  }
+
+  // Apply positions and background color
+  highlightTasks.forEach((task, index) => {
+    const el = elementPool[index];
+    Object.assign(el.style, {
+      position: 'absolute',
+      pointerEvents: 'none',
+      display: 'block',
+      backgroundColor: bgColor,
+      ...task,
+    });
   });
 }
 
-function findActiveCellRect() {
-  // Try to find elements that represent the active cell in Google Sheets.
-  // Google Sheets DOM can vary; we check a few common markers.
-  const possibleSelectors = [
-    '.active-cell-border-box', // Sometimes used for single cell box
-    '.active-cell-border', // Border of selected cell
-    '.waffle-rich-text-editor', // Input field when cell is active
-    '.autofill-cover' // Fallback to fill handle if nothing else
-  ];
-
-  const gridTop = getGridTop();
-
-  for (const selector of possibleSelectors) {
-    const elements = document.querySelectorAll(selector);
-    const validRects = [];
-
-    for (const el of elements) {
-      const rect = el.getBoundingClientRect();
-      // Ensure the element is at least partially visible on screen
-      if (
-        rect.width > 0 &&
-        rect.height > 0 &&
-        rect.bottom > gridTop &&
-        rect.right > 0 &&
-        rect.top < window.innerHeight &&
-        rect.left < window.innerWidth
-      ) {
-        // Skip elements that are suspiciously large (e.g. whole column highlights by Sheets)
-        if (rect.height > window.innerHeight * 0.8 || rect.width > window.innerWidth * 0.8) {
-          continue;
-        }
-        validRects.push(rect);
-      }
-    }
-
-    if (validRects.length > 0) {
-      // Cluster overlapping rects so that separate/disjoint selection boxes across different
-      // columns or rows (e.g. focus cell box vs range selection box) are not incorrectly merged.
-      const clusters = [];
-
-      for (const rect of validRects) {
-        let addedToCluster = false;
-        for (const cluster of clusters) {
-          const overlaps = cluster.some(cRect => {
-            const hOverlap = Math.max(rect.left, cRect.left) < Math.min(rect.right, cRect.right) - 1;
-            const vOverlap = Math.max(rect.top, cRect.top) < Math.min(rect.bottom, cRect.bottom) - 1;
-            return hOverlap && vOverlap;
-          });
-
-          if (overlaps) {
-            cluster.push(rect);
-            addedToCluster = true;
-            break;
-          }
-        }
-        if (!addedToCluster) {
-          clusters.push([rect]);
-        }
-      }
-
-      // Iteratively merge clusters if adding a new rect bridged two existing clusters
-      let merged = true;
-      while (merged) {
-        merged = false;
-        for (let i = 0; i < clusters.length; i++) {
-          for (let j = i + 1; j < clusters.length; j++) {
-            const c1 = clusters[i];
-            const c2 = clusters[j];
-            const touches = c1.some(r1 =>
-              c2.some(r2 => {
-                const hOverlap = Math.max(r1.left, r2.left) < Math.min(r1.right, r2.right) - 1;
-                const vOverlap = Math.max(r1.top, r2.top) < Math.min(r1.bottom, r2.bottom) - 1;
-                return hOverlap && vOverlap;
-              })
-            );
-            if (touches) {
-              c1.push(...c2);
-              clusters.splice(j, 1);
-              merged = true;
-              break;
-            }
-          }
-          if (merged) break;
-        }
-      }
-
-      // Find the cluster with the maximum bounding area (representing the primary active selection)
-      let bestCluster = null;
-      let maxArea = -1;
-
-      for (const cluster of clusters) {
-        let minTop = Infinity, minLeft = Infinity, maxBottom = -Infinity, maxRight = -Infinity;
-        for (const r of cluster) {
-          minTop = Math.min(minTop, r.top);
-          minLeft = Math.min(minLeft, r.left);
-          maxBottom = Math.max(maxBottom, r.bottom);
-          maxRight = Math.max(maxRight, r.right);
-        }
-        const width = maxRight - minLeft;
-        const height = maxBottom - minTop;
-        const area = width * height;
-        if (area > maxArea) {
-          maxArea = area;
-          bestCluster = { minTop, minLeft, maxBottom, maxRight, width, height };
-        }
-      }
-
-      if (bestCluster) {
-        let isRange = false;
-        const activeCellEl = document.querySelector('.active-cell-border') || document.querySelector('.waffle-rich-text-editor');
-        if (activeCellEl) {
-          const cellRect = activeCellEl.getBoundingClientRect();
-          if (bestCluster.width > cellRect.width + 5 || bestCluster.height > cellRect.height + 5) {
-            isRange = true;
-          }
-        } else {
-          const boxEl = document.querySelector('.active-cell-border-box');
-          const borderEl = document.querySelector('.active-cell-border');
-          if (boxEl && borderEl) {
-            const bRect = boxEl.getBoundingClientRect();
-            const dRect = borderEl.getBoundingClientRect();
-            if (bRect.width > dRect.width + 5 || bRect.height > dRect.height + 5) {
-              isRange = true;
-            }
-          }
-        }
-
-        if (selector === '.autofill-cover') {
-          return {
-            top: bestCluster.minTop - 21 + bestCluster.height,
-            left: bestCluster.minLeft - 100 + bestCluster.width,
-            width: 100,
-            height: 21,
-            isRange: isRange
-          };
-        }
-        return {
-          top: bestCluster.minTop,
-          left: bestCluster.minLeft,
-          width: bestCluster.width,
-          height: bestCluster.height,
-          isRange: isRange
-        };
-      }
-    }
-  }
-
-  return null;
-}
-
-function getGridTop() {
-  // Google Sheets formula bar is a reliable separator
-  const formulaBar = document.querySelector('#formula-bar');
-  if (formulaBar) {
-    const rect = formulaBar.getBoundingClientRect();
-    if (rect.bottom > 0) return rect.bottom;
-  }
-  // Fallback to grid container
-  const gridContainer = document.querySelector('.grid-container') || document.querySelector('.waffle-grid-container');
-  if (gridContainer) {
-    const rect = gridContainer.getBoundingClientRect();
-    if (rect.top > 0) return rect.top;
-  }
-  // Default to 0 if nothing works
-  return 0;
-}
-
 function loop(timestamp) {
-  if (!isEnabled) return;
-  
-  // Throttle DOM querying to roughly 20 FPS to maintain low overhead
-  if (timestamp - lastTime > 50) {
-    lastTime = timestamp;
-    const rect = findActiveCellRect();
-    
-    if (rect) {
-      if (rect.isRange && !rangeHighlight) {
-        hideHighlights();
-        animationFrameId = requestAnimationFrame(loop);
-        return;
-      }
-
-      targetRect.top = rect.top;
-      targetRect.left = rect.left;
-      targetRect.width = rect.width;
-      targetRect.height = rect.height;
-
-      if (hlRowLeft.style.display !== 'block') {
-        highlights.forEach(hl => hl.style.display = 'block');
-      }
-      
-      const gridTop = getGridTop();
-
-      const rowWidth = rowLimit
-        ? Math.max(0, targetRect.left + targetRect.width)
-        : window.innerWidth;
-
-      if (highlightStyle === 'line') {
-        // Draw lines stopping at the cell or extending to full width depending on rowLimit.
-        // Vertical line is on the right side of the cell.
-        // Horizontal line is on the bottom side of the cell.
-        const lineThickness = highlightThickness;
-        const cy = targetRect.top + targetRect.height;
-        const cx = targetRect.left + targetRect.width;
-
-        hlRowLeft.style.top = cy + 'px';
-        hlRowLeft.style.left = '0px';
-        hlRowLeft.style.height = lineThickness + 'px';
-        hlRowLeft.style.width = rowWidth + 'px';
-
-        hlRowRight.style.display = 'none';
-
-        hlColTop.style.left = cx + 'px';
-        hlColTop.style.top = gridTop + 'px';
-        hlColTop.style.width = lineThickness + 'px';
-        hlColTop.style.height = Math.max(0, targetRect.top + targetRect.height - gridTop) + 'px';
-
-        hlColBottom.style.display = 'none';
-      } else {
-        // Draw cell bands stopping at the cell (covering the cell itself to form the intersection)
-        hlRowLeft.style.top = targetRect.top + 'px';
-        hlRowLeft.style.left = '0px';
-        hlRowLeft.style.height = targetRect.height + 'px';
-        hlRowLeft.style.width = rowWidth + 'px';
-
-        hlRowRight.style.display = 'none';
-
-        hlColTop.style.left = targetRect.left + 'px';
-        hlColTop.style.top = gridTop + 'px';
-        hlColTop.style.width = targetRect.width + 'px';
-        // Stop at the bottom edge of the selected cell
-        hlColTop.style.height = Math.max(0, targetRect.top + targetRect.height - gridTop) + 'px';
-
-        hlColBottom.style.display = 'none';
-      }
-    } else {
-      hideHighlights();
+  if (isEnabled) {
+    if (timestamp - lastTime > 40) {
+      lastTime = timestamp;
+      updateHighlight();
     }
   }
-
   animationFrameId = requestAnimationFrame(loop);
 }
 
@@ -351,7 +472,73 @@ function stopLoop() {
   }
 }
 
-// Initialize when DOM is ready
+function init() {
+  locator =
+    location.hostname.includes('docs.google.com')
+      ? new SheetsActiveCellLocator()
+      : new ExcelActiveCellLocator();
+
+  ensureContainer();
+
+  // Load initial settings
+  chrome.storage.local.get(
+    {
+      enabled: true,
+      rowLimit: true,
+      rangeHighlight: true,
+      style: 'line',
+      thickness: 2,
+      color: '#ffff00',
+      opacity: 20,
+    },
+    (items) => {
+      isEnabled = items.enabled;
+      rowLimit = items.rowLimit;
+      rangeHighlight = items.rangeHighlight;
+      highlightStyle = items.style;
+      highlightThickness = items.thickness;
+      highlightColor = items.color;
+      highlightOpacity = items.opacity;
+
+      if (isEnabled) {
+        updateHighlight();
+        startLoop();
+      }
+    }
+  );
+
+  // Listen for setting changes
+  chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace === 'local') {
+      if (changes.enabled !== undefined) isEnabled = changes.enabled.newValue;
+      if (changes.rowLimit !== undefined) rowLimit = changes.rowLimit.newValue;
+      if (changes.rangeHighlight !== undefined)
+        rangeHighlight = changes.rangeHighlight.newValue;
+      if (changes.style !== undefined) highlightStyle = changes.style.newValue;
+      if (changes.thickness !== undefined)
+        highlightThickness = changes.thickness.newValue;
+      if (changes.color !== undefined) highlightColor = changes.color.newValue;
+      if (changes.opacity !== undefined)
+        highlightOpacity = changes.opacity.newValue;
+
+      if (isEnabled) {
+        updateHighlight();
+        startLoop();
+      } else {
+        stopLoop();
+        hideHighlights();
+      }
+    }
+  });
+
+  // Event listeners for instant response
+  window.addEventListener('click', updateHighlight);
+  window.addEventListener('keydown', updateHighlight);
+  window.addEventListener('keyup', updateHighlight);
+  window.addEventListener('resize', updateHighlight);
+  window.addEventListener('scroll', updateHighlight, true);
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {

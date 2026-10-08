@@ -1,7 +1,13 @@
-.es-highlight {
+#es-highlighter-container {
   position: fixed;
   pointer-events: none;
-  z-index: 1000;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.es-highlight {
+  position: absolute;
+  pointer-events: none;
   display: none;
   transition: background-color 0.1s ease;
 }
