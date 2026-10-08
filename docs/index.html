@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spreadsheet Cell Highlighter - Crosshair & Band Guides for Google Sheets</title>
-  <meta name="description" content="A lightweight Chrome extension that tracks the active cell in Google Sheets and highlights the active row and column in real-time. Boost data accuracy and eliminate eye fatigue.">
-  <meta name="keywords" content="Google Sheets highlighter, spreadsheet crosshair, cell highlighter, row column highlight, google sheets extension, chrome extension">
-  
+  <meta name="description"
+    content="A lightweight Chrome extension that tracks the active cell in Google Sheets and highlights the active row and column in real-time. Boost data accuracy and eliminate eye fatigue.">
+  <meta name="keywords"
+    content="Google Sheets highlighter, spreadsheet crosshair, cell highlighter, row column highlight, google sheets extension, chrome extension">
+
   <!-- Open Graph / Social Meta -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Spreadsheet Cell Highlighter - Google Chrome Extension">
-  <meta property="og:description" content="Never lose your place in massive spreadsheets. Real-time row & column highlight for Google Sheets.">
+  <meta property="og:description"
+    content="Never lose your place in massive spreadsheets. Real-time row & column highlight for Google Sheets.">
   <meta property="og:image" content="./assets/promo-marquee-1400x563.png">
 
   <!-- Favicon -->
@@ -19,11 +23,14 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
 
   <!-- Stylesheet -->
   <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
 
   <!-- ==========================================
@@ -51,10 +58,12 @@
         <!-- Language Switcher -->
         <div class="lang-selector-wrapper">
           <button class="lang-select-btn" id="lang-select-btn" aria-label="Select Language">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="2" y1="12" x2="22" y2="12"></line>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+              </path>
             </svg>
             <span id="current-lang-label">English</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -77,7 +86,8 @@
         <!-- Theme Toggle -->
         <button class="theme-btn" id="theme-toggle-btn" aria-label="Toggle Theme">
           <!-- Sun Icon (shown in dark mode) -->
-          <svg id="theme-icon-sun" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg id="theme-icon-sun" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
             <circle cx="12" cy="12" r="5"></circle>
             <line x1="12" y1="1" x2="12" y2="3"></line>
             <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -130,11 +140,14 @@
             </div>
 
             <h1 class="hero-title">
-              <span data-i18n="heroTitlePrefix">Never lose your place in </span><span class="gradient-text" data-i18n="heroTitleGradient">massive spreadsheets</span><span data-i18n="heroTitleSuffix"> again.</span>
+              <span data-i18n="heroTitlePrefix">Never lose your place in </span><span class="gradient-text"
+                data-i18n="heroTitleGradient">massive spreadsheets</span><span data-i18n="heroTitleSuffix">
+                again.</span>
             </h1>
 
             <p class="hero-description" data-i18n="heroDescription">
-              An ultra-lightweight Chrome extension that tracks your active cell in Google Sheets and highlights the active row and column in real time. Boost accuracy, navigate effortlessly, and eliminate eye strain.
+              An ultra-lightweight Chrome extension that tracks your active cell in Google Sheets and highlights the
+              active row and column in real time. Boost accuracy, navigate effortlessly, and eliminate eye strain.
             </p>
 
             <div class="hero-actions">
@@ -157,19 +170,27 @@
 
             <div class="hero-features-chips">
               <div class="hero-chip">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
                 <span data-i18n="heroChip1">Real-time Tracking</span>
               </div>
               <div class="hero-chip">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
                 <span data-i18n="heroChip2">Line & Cell Modes</span>
               </div>
               <div class="hero-chip">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
                 <span data-i18n="heroChip3">Zero Latency (~20 FPS)</span>
               </div>
               <div class="hero-chip">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
                 <span data-i18n="heroChip4">100% Client-Side Privacy</span>
               </div>
             </div>
@@ -177,7 +198,8 @@
 
           <div class="hero-visual">
             <div class="hero-visual-card">
-              <img src="./assets/promo-marquee-1400x563.png" alt="Spreadsheet Cell Highlighter Preview" class="hero-banner-img">
+              <img src="./assets/promo-marquee-1400x563.png" alt="Spreadsheet Cell Highlighter Preview"
+                class="hero-banner-img">
               <div class="hero-floating-badge">
                 <div class="floating-badge-icon">🎯</div>
                 <div class="floating-badge-text">
@@ -200,7 +222,8 @@
           <span class="section-tag" data-i18n="simTag">Interactive Playground</span>
           <h2 class="section-title" data-i18n="simTitle">Test Drive the Highlighter Right Now</h2>
           <p class="section-subtitle" data-i18n="simSubtitle">
-            Click cells in the interactive grid below and tweak the controls to see how both Line and Cell modes work in real time.
+            Click cells in the interactive grid below and tweak the controls to see how both Line and Cell modes work in
+            real time.
           </p>
         </div>
 
@@ -230,7 +253,8 @@
             <div class="control-group">
               <span class="control-label" data-i18n="simStyleLabel">Highlight Type</span>
               <div class="segmented-control">
-                <button type="button" class="segmented-btn active" id="sim-style-line" data-i18n="simStyleLine">Line</button>
+                <button type="button" class="segmented-btn active" id="sim-style-line"
+                  data-i18n="simStyleLine">Line</button>
                 <button type="button" class="segmented-btn" id="sim-style-cell" data-i18n="simStyleCell">Cell</button>
               </div>
             </div>
@@ -285,7 +309,8 @@
             <div class="sheets-mockup-bar">
               <div class="sheets-mockup-tab">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="#0f9d58">
-                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                  <path
+                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
                 </svg>
                 <span>Q2 Financial Report 2026</span>
               </div>
@@ -306,7 +331,8 @@
             </div>
 
             <div class="simulator-footer-hint">
-              <span data-i18n="simHint">💡 Click any cell or use Arrow Keys to navigate. Notice how the guides align automatically!</span>
+              <span data-i18n="simHint">💡 Click any cell or use Arrow Keys to navigate. Notice how the guides align
+                automatically!</span>
               <div>
                 <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd>
               </div>
@@ -335,7 +361,8 @@
             <div class="feature-icon-wrapper">🎯</div>
             <h3 class="feature-title" data-i18n="feat1Title">Real-Time Cell Tracking</h3>
             <p class="feature-text" data-i18n="feat1Desc">
-              Smoothly tracks your active cell whether you click with your mouse or fly through cells using keyboard arrow shortcuts. Intelligently respects Google Sheets formula editors and frozen panes.
+              Smoothly tracks your active cell whether you click with your mouse or fly through cells using keyboard
+              arrow shortcuts. Intelligently respects Google Sheets formula editors and frozen panes.
             </p>
             <div class="feature-tag-list">
               <span class="feature-tag" data-i18n="feat1Tag1">Keyboard & Mouse</span>
@@ -349,7 +376,8 @@
             <div class="feature-icon-wrapper">🎨</div>
             <h3 class="feature-title" data-i18n="feat2Title">Two Distinct Highlight Modes</h3>
             <p class="feature-text" data-i18n="feat2Desc">
-              Switch seamlessly between Line Mode (minimalist crosshair guides along cell boundaries) and Cell Mode (translucent colored bands highlighting the entire active row and column).
+              Switch seamlessly between Line Mode (minimalist crosshair guides along cell boundaries) and Cell Mode
+              (translucent colored bands highlighting the entire active row and column).
             </p>
             <div class="feature-tag-list">
               <span class="feature-tag" data-i18n="feat2Tag1">Line Crosshair</span>
@@ -363,7 +391,8 @@
             <div class="feature-icon-wrapper">📏</div>
             <h3 class="feature-title" data-i18n="feat3Title">Row Highlight Limit</h3>
             <p class="feature-text" data-i18n="feat3Desc">
-              Hate infinite horizontal lines cluttering your screen? Enable the Row Highlight Limit to stop the guide at your active cell, keeping your spreadsheet clean and focused.
+              Hate infinite horizontal lines cluttering your screen? Enable the Row Highlight Limit to stop the guide at
+              your active cell, keeping your spreadsheet clean and focused.
             </p>
             <div class="feature-tag-list">
               <span class="feature-tag" data-i18n="feat3Tag1">Visual Clarity</span>
@@ -377,7 +406,8 @@
             <div class="feature-icon-wrapper">🔲</div>
             <h3 class="feature-title" data-i18n="feat4Title">Range Selection Awareness</h3>
             <p class="feature-text" data-i18n="feat4Desc">
-              When dragging or selecting multi-cell blocks, the extension intelligently adapts. Choose to show guides around your selection or suppress them during bulk operations.
+              When dragging or selecting multi-cell blocks, the extension intelligently adapts. Choose to show guides
+              around your selection or suppress them during bulk operations.
             </p>
             <div class="feature-tag-list">
               <span class="feature-tag" data-i18n="feat4Tag1">Smart Detection</span>
@@ -391,7 +421,8 @@
             <div class="feature-icon-wrapper">🎛️</div>
             <h3 class="feature-title" data-i18n="feat5Title">Full Visual Customization</h3>
             <p class="feature-text" data-i18n="feat5Desc">
-              Personalize your guide colors with a full-spectrum hex color picker, adjust opacity from 0% to 100%, and configure line thickness from 1px to 12px for perfect visibility.
+              Personalize your guide colors with a full-spectrum hex color picker, adjust opacity from 0% to 100%, and
+              configure line thickness from 1px to 12px for perfect visibility.
             </p>
             <div class="feature-tag-list">
               <span class="feature-tag" data-i18n="feat5Tag1">Color Picker</span>
@@ -405,7 +436,8 @@
             <div class="feature-icon-wrapper">🌓</div>
             <h3 class="feature-title" data-i18n="feat6Title">Dark & Light Theme Support</h3>
             <p class="feature-text" data-i18n="feat6Desc">
-              The popup control panel comes equipped with instant dark and light mode switching, matching your operating system or personal workflow preference.
+              The popup control panel comes equipped with instant dark and light mode switching, matching your operating
+              system or personal workflow preference.
             </p>
             <div class="feature-tag-list">
               <span class="feature-tag" data-i18n="feat6Tag1">Dark Mode</span>
@@ -419,7 +451,8 @@
             <div class="feature-icon-wrapper">⚡</div>
             <h3 class="feature-title" data-i18n="feat7Title">Zero Latency & Battery Friendly</h3>
             <p class="feature-text" data-i18n="feat7Desc">
-              Built with throttled requestAnimationFrame (~20 FPS) and DOM element recycling. Consumes near-zero CPU and memory, ensuring spreadsheets stay silky smooth.
+              Built with throttled requestAnimationFrame (~20 FPS) and DOM element recycling. Consumes near-zero CPU and
+              memory, ensuring spreadsheets stay silky smooth.
             </p>
             <div class="feature-tag-list">
               <span class="feature-tag" data-i18n="feat7Tag1">DOM Pooling</span>
@@ -433,7 +466,8 @@
             <div class="feature-icon-wrapper">🌐</div>
             <h3 class="feature-title" data-i18n="feat8Title">Trilingual Out-of-the-Box</h3>
             <p class="feature-text" data-i18n="feat8Desc">
-              Available in English, Japanese (日本語), and Brazilian Portuguese (Português). Switch languages instantly directly from the extension popup.
+              Available in English, Japanese (日本語), and Brazilian Portuguese (Português). Switch languages instantly
+              directly from the extension popup.
             </p>
             <div class="feature-tag-list">
               <span class="feature-tag" data-i18n="feat8Tag1">English</span>
@@ -461,7 +495,8 @@
         <div class="gallery-tabs">
           <button class="gallery-tab-btn active" data-target="gallery-line" data-i18n="tabLine">Line Mode</button>
           <button class="gallery-tab-btn" data-target="gallery-cell" data-i18n="tabCell">Cell Mode</button>
-          <button class="gallery-tab-btn" data-target="gallery-pop-light" data-i18n="tabPopupLight">Popup (Light)</button>
+          <button class="gallery-tab-btn" data-target="gallery-pop-light" data-i18n="tabPopupLight">Popup
+            (Light)</button>
           <button class="gallery-tab-btn" data-target="gallery-pop-dark" data-i18n="tabPopupDark">Popup (Dark)</button>
           <button class="gallery-tab-btn" data-target="gallery-promo" data-i18n="tabPromo">Overview</button>
         </div>
@@ -473,7 +508,8 @@
               <img src="./assets/screenshot-4-line-highlight.png" alt="Line Mode Highlight">
               <div class="gallery-caption">
                 <div class="caption-title" data-i18n="capLineTitle">Line Mode Crosshair Guide</div>
-                <div class="caption-desc" data-i18n="capLineDesc">High-precision horizontal and vertical crosshairs intersecting at cell C3.</div>
+                <div class="caption-desc" data-i18n="capLineDesc">High-precision horizontal and vertical crosshairs
+                  intersecting at cell C3.</div>
               </div>
             </div>
           </div>
@@ -484,7 +520,8 @@
               <img src="./assets/screenshot-3-cell-highlight.png" alt="Cell Mode Highlight">
               <div class="gallery-caption">
                 <div class="caption-title" data-i18n="capCellTitle">Cell Mode Colored Bands</div>
-                <div class="caption-desc" data-i18n="capCellDesc">Gentle translucent yellow bands highlighting row 3 and column C simultaneously.</div>
+                <div class="caption-desc" data-i18n="capCellDesc">Gentle translucent yellow bands highlighting row 3 and
+                  column C simultaneously.</div>
               </div>
             </div>
           </div>
@@ -495,7 +532,8 @@
               <img src="./assets/screenshot-1-control-panel.png" alt="Popup Control Panel Light Theme">
               <div class="gallery-caption">
                 <div class="caption-title" data-i18n="capPopupLightTitle">Light Mode Popup Panel</div>
-                <div class="caption-desc" data-i18n="capPopupLightDesc">Clean, responsive settings popup with instant controls and color sliders.</div>
+                <div class="caption-desc" data-i18n="capPopupLightDesc">Clean, responsive settings popup with instant
+                  controls and color sliders.</div>
               </div>
             </div>
           </div>
@@ -506,7 +544,8 @@
               <img src="./assets/screenshot-2-control-panel-dark-mode.png" alt="Popup Control Panel Dark Theme">
               <div class="gallery-caption">
                 <div class="caption-title" data-i18n="capPopupDarkTitle">Dark Mode Popup Panel</div>
-                <div class="caption-desc" data-i18n="capPopupDarkDesc">OLED-friendly dark theme designed for comfortable late-night data sessions.</div>
+                <div class="caption-desc" data-i18n="capPopupDarkDesc">OLED-friendly dark theme designed for comfortable
+                  late-night data sessions.</div>
               </div>
             </div>
           </div>
@@ -517,7 +556,8 @@
               <img src="./assets/promo-large-920x370.png" alt="Promotional Overview">
               <div class="gallery-caption">
                 <div class="caption-title" data-i18n="capPromoTitle">Spreadsheet Cell Highlighter Banner</div>
-                <div class="caption-desc" data-i18n="capPromoDesc">Designed specifically to boost data accuracy and reduce eye fatigue.</div>
+                <div class="caption-desc" data-i18n="capPromoDesc">Designed specifically to boost data accuracy and
+                  reduce eye fatigue.</div>
               </div>
             </div>
           </div>
@@ -542,25 +582,29 @@
           <div class="trust-card">
             <div class="trust-icon">🛡️</div>
             <h3 class="trust-title" data-i18n="trust1Title">Zero Data Collection</h3>
-            <p class="trust-desc" data-i18n="trust1Desc">The extension never reads, stores, or transmits your spreadsheet cells, formulas, or personal information.</p>
+            <p class="trust-desc" data-i18n="trust1Desc">The extension never reads, stores, or transmits your
+              spreadsheet cells, formulas, or personal information.</p>
           </div>
 
           <div class="trust-card">
             <div class="trust-icon">🔒</div>
             <h3 class="trust-title" data-i18n="trust2Title">Zero External Requests</h3>
-            <p class="trust-desc" data-i18n="trust2Desc">Operates 100% offline. No telemetry, no third-party tracking scripts, and no analytics beacons whatsoever.</p>
+            <p class="trust-desc" data-i18n="trust2Desc">Operates 100% offline. No telemetry, no third-party tracking
+              scripts, and no analytics beacons whatsoever.</p>
           </div>
 
           <div class="trust-card">
             <div class="trust-icon">💾</div>
             <h3 class="trust-title" data-i18n="trust3Title">Local Browser Storage</h3>
-            <p class="trust-desc" data-i18n="trust3Desc">Settings like your favorite color and opacity are saved locally via chrome.storage.local on your computer.</p>
+            <p class="trust-desc" data-i18n="trust3Desc">Settings like your favorite color and opacity are saved locally
+              via chrome.storage.local on your computer.</p>
           </div>
 
           <div class="trust-card">
             <div class="trust-icon">⚡</div>
             <h3 class="trust-title" data-i18n="trust4Title">Manifest V3 Compliant</h3>
-            <p class="trust-desc" data-i18n="trust4Desc">Built on Google Chrome's newest Manifest V3 standard with minimal, transparent permissions scoped only to Google Sheets.</p>
+            <p class="trust-desc" data-i18n="trust4Desc">Built on Google Chrome's newest Manifest V3 standard with
+              minimal, transparent permissions scoped only to Google Sheets.</p>
           </div>
         </div>
       </div>
@@ -583,19 +627,22 @@
           <div class="step-card">
             <div class="step-number">1</div>
             <h3 class="step-title" data-i18n="step1Title">1. Install Extension</h3>
-            <p class="step-desc" data-i18n="step1Desc">Add Spreadsheet Cell Highlighter to Google Chrome (or any Chromium browser like Edge, Brave, or Opera).</p>
+            <p class="step-desc" data-i18n="step1Desc">Add Spreadsheet Cell Highlighter to Google Chrome (or any
+              Chromium browser like Edge, Brave, or Opera).</p>
           </div>
 
           <div class="step-card">
             <div class="step-number">2</div>
             <h3 class="step-title" data-i18n="step2Title">2. Open Google Sheets</h3>
-            <p class="step-desc" data-i18n="step2Desc">Navigate to docs.google.com/spreadsheets and open any workbook or create a new sheet.</p>
+            <p class="step-desc" data-i18n="step2Desc">Navigate to docs.google.com/spreadsheets and open any workbook or
+              create a new sheet.</p>
           </div>
 
           <div class="step-card">
             <div class="step-number">3</div>
             <h3 class="step-title" data-i18n="step3Title">3. Click Any Cell</h3>
-            <p class="step-desc" data-i18n="step3Desc">Your row and column guides will appear immediately! Click the toolbar icon anytime to customize.</p>
+            <p class="step-desc" data-i18n="step3Desc">Your row and column guides will appear immediately! Click the
+              toolbar icon anytime to customize.</p>
           </div>
         </div>
 
@@ -633,50 +680,67 @@
           <div class="faq-item">
             <button class="faq-question">
               <span data-i18n="faqQ1">Does this extension slow down Google Sheets?</span>
-              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </button>
             <div class="faq-answer" data-i18n="faqA1">
-              Not at all! The extension is engineered using DOM element pooling and throttled requestAnimationFrame cycles. It creates only 2 persistent guide elements in memory instead of creating elements on every click, ensuring buttery smooth 60 FPS scrolling.
+              Not at all! The extension is engineered using DOM element pooling and throttled requestAnimationFrame
+              cycles. It creates only 2 persistent guide elements in memory instead of creating elements on every click,
+              ensuring buttery smooth 60 FPS scrolling.
             </div>
           </div>
 
           <div class="faq-item">
             <button class="faq-question">
               <span data-i18n="faqQ2">Can the extension see or steal my financial or company data?</span>
-              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </button>
             <div class="faq-answer" data-i18n="faqA2">
-              No. The extension only inspects the coordinate position (bounding rectangle) of the active cell border in the DOM to place the guide lines. It never reads the text content, cell values, or formulas of your spreadsheet.
+              No. The extension only inspects the coordinate position (bounding rectangle) of the active cell border in
+              the DOM to place the guide lines. It never reads the text content, cell values, or formulas of your
+              spreadsheet.
             </div>
           </div>
 
           <div class="faq-item">
             <button class="faq-question">
               <span data-i18n="faqQ3">Does it work with frozen rows, columns, and filter views?</span>
-              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </button>
             <div class="faq-answer" data-i18n="faqA3">
-              Yes! The guide overlays are placed directly over the sheet viewport and automatically adapt as you scroll, select, and edit cells across frozen panes and standard sheets.
+              Yes! The guide overlays are placed directly over the sheet viewport and automatically adapt as you scroll,
+              select, and edit cells across frozen panes and standard sheets.
             </div>
           </div>
 
           <div class="faq-item">
             <button class="faq-question">
               <span data-i18n="faqQ4">Can I customize the highlight color and transparency?</span>
-              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </button>
             <div class="faq-answer" data-i18n="faqA4">
-              Yes! Click the extension icon in your Chrome toolbar to open the settings popup. You can select any color using the color picker, adjust opacity from 0% to 100%, and set line thickness from 1px to 12px.
+              Yes! Click the extension icon in your Chrome toolbar to open the settings popup. You can select any color
+              using the color picker, adjust opacity from 0% to 100%, and set line thickness from 1px to 12px.
             </div>
           </div>
 
           <div class="faq-item">
             <button class="faq-question">
               <span data-i18n="faqQ5">Is Spreadsheet Cell Highlighter free?</span>
-              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
             </button>
             <div class="faq-answer" data-i18n="faqA5">
-              Yes, it is 100% free and open-source under the permissive MIT License. You are free to inspect the code, modify it, or contribute on GitHub.
+              Yes, it is 100% free and open-source under the permissive MIT License. You are free to inspect the code,
+              modify it, or contribute on GitHub.
             </div>
           </div>
         </div>
@@ -691,7 +755,8 @@
         <div class="cta-box">
           <h2 class="cta-title" data-i18n="ctaTitle">Ready to Supercharge Your Spreadsheets?</h2>
           <p class="cta-desc" data-i18n="ctaDesc">
-            Join thousands of professionals who save time, prevent data-entry mistakes, and navigate large sheets with ease.
+            Join thousands of professionals who save time, prevent data-entry mistakes, and navigate large sheets with
+            ease.
           </p>
           <div class="cta-actions">
             <a href="#how-it-works" class="btn-primary">
@@ -702,9 +767,12 @@
               </svg>
               <span data-i18n="ctaInstallBtn">Add to Chrome — It's Free</span>
             </a>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="btn-secondary">
+            <a href="https://github.com/lincoln90/Spreadsheet-Cell-Highlighter/releases" target="_blank"
+              rel="noopener noreferrer" class="btn-secondary">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                <path
+                  d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                </path>
               </svg>
               <span data-i18n="ctaGithubBtn">View on GitHub</span>
             </a>
@@ -748,4 +816,5 @@
   <!-- Application Script -->
   <script src="./app.js"></script>
 </body>
+
 </html>
